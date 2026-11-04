@@ -12,9 +12,9 @@
  * Force Exclude Importance Level: 0
  * Minimum Age (in days): 0
  * Minimum Score: 40
- * Creation Date: 2026-11-01
- * Number of Rules: 11866
- * Skipped: 0 (age), 232 (quality), 9 (score), 0 (importance)
+ * Creation Date: 2026-11-03
+ * Number of Rules: 11865
+ * Skipped: 0 (age), 233 (quality), 9 (score), 0 (importance)
  */
 
 import "console"
@@ -30,7 +30,7 @@ import "string"
  * YARA Rule Set
  * Repository Name: ReversingLabs
  * Repository: https://github.com/reversinglabs/reversinglabs-yara-rules/
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: e0a0be54aa1e11ccfd6854e4f19e9476f328fd84
  * Number of Rules: 1240
  * Skipped: 0 (age), 0 (quality), 0 (score), 0 (importance)
@@ -60236,7 +60236,7 @@ rule REVERSINGLABS_Win32_Trojan_Bibiwiper : TC_DETECTION MALICIOUS MALWARE FILE
  * YARA Rule Set
  * Repository Name: R3c0nst
  * Repository: https://github.com/fboldewin/YARA-rules/
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: 54e9e6899b258b72074b2b4db6909257683240c2
  * Number of Rules: 26
  * Skipped: 0 (age), 0 (quality), 0 (score), 0 (importance)
@@ -60994,8 +60994,8 @@ rule R3C0NST_ATM_Malware_XFSADM : FILE
  * YARA Rule Set
  * Repository Name: CAPE
  * Repository: https://github.com/kevoreilly/CAPEv2
- * Retrieval Date: 2026-11-01
- * Git Commit: 25ed598ca1fb53bc0a98cf3da394080a200f2050
+ * Retrieval Date: 2026-11-03
+ * Git Commit: c81fabdbac49774780578ae7dc09b9617e098296
  * Number of Rules: 192
  * Skipped: 0 (age), 18 (quality), 3 (score), 0 (importance)
  *
@@ -61677,8 +61677,8 @@ rule CAPE_Pikahook : FILE
 		date = "2024-03-07"
 		modified = "2024-03-12"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Pikabot.yar#L1-L14"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Pikabot.yar#L1-L14"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "2a50a5f2d905122a5b7ac8ca3666b47caa24d325e246841129e53807daf2a1dd"
 		score = 75
 		quality = 70
@@ -61703,8 +61703,8 @@ rule CAPE_Pikexport : FILE
 		date = "2024-03-07"
 		modified = "2024-03-12"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Pikabot.yar#L16-L28"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Pikabot.yar#L16-L28"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "238dcc5611ed9066b63d2d0109c9b623f54f8d7b61d5f9de59694cfc60a4e646"
 		logic_hash = "33f58703a0e40c2361343dbdcc17111aafbf5cc912393edda79005c6ec566f42"
 		score = 75
@@ -61728,8 +61728,8 @@ rule CAPE_Ursnifv3
 		date = "2021-06-17"
 		modified = "2023-03-23"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/UrsnifV3.yar#L1-L16"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/UrsnifV3.yar#L1-L16"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "d679546e37ee58087fce75920b2ce4e6d2b9ae55fb1ef80d14ec14309396757c"
 		score = 75
 		quality = 70
@@ -61756,8 +61756,8 @@ rule CAPE_Darkgate
 		date = "2024-02-26"
 		modified = "2024-02-26"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/DarkGate.yar#L1-L17"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/DarkGate.yar#L1-L17"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "c1d35921f4fc3bac681a3d5148f517dc0ec90ab8c51e267c8c6cd5b1ca3dc085"
 		logic_hash = "25c0e77a83676c6a18445f8df0b1f7a9148de5f64eeb532f9a4f4d4652dd8191"
 		score = 75
@@ -61785,8 +61785,8 @@ rule CAPE_Singlestepantihook
 		date = "2021-08-26"
 		modified = "2021-08-26"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/SingleStepAntiHook.yar#L1-L11"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/SingleStepAntiHook.yar#L1-L11"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "fc9f36b0ecc13192fe8b6caaff256ac52c1f14480223d629a38ba84e90dd0809"
 		score = 75
 		quality = 70
@@ -61808,8 +61808,8 @@ rule CAPE_Lumma : FILE
 		date = "2024-01-05"
 		modified = "2024-05-09"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Lumma.yar#L1-L14"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Lumma.yar#L1-L14"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "a8f9212b619796f91f14c4164e4d2f30c66b51118f22f3d6c310841b6707b7b0"
 		score = 75
 		quality = 70
@@ -61834,8 +61834,8 @@ rule CAPE_Lummaremap
 		date = "2024-01-05"
 		modified = "2024-05-09"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Lumma.yar#L16-L27"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Lumma.yar#L16-L27"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "51093379fbd041f75bdfe161bc9dfcc7d782c23ce16d625ca558bb58d8d57713"
 		score = 75
 		quality = 70
@@ -61858,8 +61858,8 @@ rule CAPE_Blister : FILE
 		date = "2022-05-10"
 		modified = "2024-05-09"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Blister.yar#L1-L17"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Blister.yar#L1-L17"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "aba379b93c85241cf250829832b2c8a5eaafb3abd0ff955dbaf0d06489c00deb"
 		score = 75
 		quality = 70
@@ -61887,8 +61887,8 @@ rule CAPE_Anticuckoo : FILE
 		date = "2023-03-17"
 		modified = "2023-03-17"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/AntiCuckoo.yar#L1-L12"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/AntiCuckoo.yar#L1-L12"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "ad5e52f144bb4a1dae3090978c6ecb4c7732538c9b62a6cedd32eccee6094be5"
 		logic_hash = "a039aeca2dae44980e8bffafacfda90975e107001be50f11ac916b35ad43592e"
 		score = 75
@@ -61911,8 +61911,8 @@ rule CAPE_Socks5Systemz : FILE
 		date = "2024-05-22"
 		modified = "2025-05-23"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Socks5Systemz.yar#L1-L19"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Socks5Systemz.yar#L1-L19"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "7e324bacd1ea57585435b6a5a4c93bda63ca146c100f2361a1c5530b87668299"
 		score = 75
 		quality = 70
@@ -61942,8 +61942,8 @@ rule CAPE_Formhooka
 		date = "2021-03-07"
 		modified = "2026-05-15"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Formbook.yar#L1-L14"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Formbook.yar#L1-L14"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "21b8101a7039cfad0e9d49cc1f055bc23a2eb4c973dcda2a81a007e452d77a6d"
 		score = 75
 		quality = 70
@@ -61968,8 +61968,8 @@ rule CAPE_Formconfa
 		date = "2021-03-07"
 		modified = "2026-05-15"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Formbook.yar#L32-L44"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Formbook.yar#L32-L44"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "b0aa4cec55a21245d8104380c531dd6cc0fdef64fbefd79616eadfb4e95b2d75"
 		score = 75
 		quality = 70
@@ -61993,8 +61993,8 @@ rule CAPE_Formhelper
 		date = "2021-03-07"
 		modified = "2026-05-15"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Formbook.yar#L46-L58"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Formbook.yar#L46-L58"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "e049fba8e53934587f97bda5108cf9cece4169a8ff65a5d2788a98f709a68dc0"
 		score = 75
 		quality = 70
@@ -62018,8 +62018,8 @@ rule CAPE_Formconfb
 		date = "2021-03-07"
 		modified = "2026-05-15"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Formbook.yar#L60-L75"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Formbook.yar#L60-L75"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "c8bf1d3c242a02ae8bee42d570010c8b4a881db64d82b157fc4ac18f71e11f71"
 		score = 75
 		quality = 70
@@ -62046,8 +62046,8 @@ rule CAPE_Bruteratelsyscall
 		date = "2024-07-11"
 		modified = "2024-07-22"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/BruteRatel.yar#L1-L12"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/BruteRatel.yar#L1-L12"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "5ed054b3cd5d2659c250945d55d6adac90945963c34ad2af0f8d7436141e86b6"
 		score = 75
 		quality = 70
@@ -62070,8 +62070,8 @@ rule CAPE_Bruteratelpacker
 		date = "2024-07-11"
 		modified = "2024-07-22"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/BruteRatel.yar#L14-L26"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/BruteRatel.yar#L14-L26"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "2ccb17efe378d034df34d20d7580c58171d0fd11c18fef6c9a23f1ba238514e6"
 		score = 75
 		quality = 70
@@ -62095,8 +62095,8 @@ rule CAPE_Bruterateldate
 		date = "2024-07-11"
 		modified = "2024-07-22"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/BruteRatel.yar#L28-L39"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/BruteRatel.yar#L28-L39"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "88589b2d08aea03565668ff1b9af20b6fe11cda50d867c60db7cb4d1826b0fd7"
 		score = 75
 		quality = 70
@@ -62119,8 +62119,8 @@ rule CAPE_Bruteratelconfig
 		date = "2024-07-11"
 		modified = "2024-07-22"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/BruteRatel.yar#L41-L51"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/BruteRatel.yar#L41-L51"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "b1815aafec940ab6c8daafc68ccf294845221ada260de5209dcb7e49ccd061c7"
 		score = 75
 		quality = 70
@@ -62142,8 +62142,8 @@ rule CAPE_Stealcanti : FILE
 		date = "2023-02-22"
 		modified = "2025-09-01"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Stealc.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Stealc.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "77d6f1914af6caf909fa2a246fcec05f500f79dd56e5d0d466d55924695c702d"
 		logic_hash = "4132e8094b0b49a89e9f40a8b1a6abbf105bbb04e4ddf3ce739e39fc2baf0d13"
 		score = 75
@@ -62167,8 +62167,8 @@ rule CAPE_Stealcstrings : FILE
 		date = "2023-02-22"
 		modified = "2025-09-01"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Stealc.yar#L15-L26"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Stealc.yar#L15-L26"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "6d402446a979c00b6257ace9924db381d98c530b22968bd2776c66d58c7faefc"
 		score = 75
 		quality = 70
@@ -62191,8 +62191,8 @@ rule CAPE_Stealcv2Strings : FILE
 		date = "2023-02-22"
 		modified = "2025-09-01"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Stealc.yar#L28-L43"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Stealc.yar#L28-L43"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "923f70edb3ad70957576994008729bf7a087479eed1973c42161aa96fa694baa"
 		score = 75
 		quality = 70
@@ -62219,8 +62219,8 @@ rule CAPE_Stealcv2Datecheck : FILE
 		date = "2023-02-22"
 		modified = "2025-09-01"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Stealc.yar#L45-L56"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Stealc.yar#L45-L56"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "f074aceb7c111156752891acac8690c00dad7c26240fb0752cc12a9a65aa3d30"
 		score = 75
 		quality = 70
@@ -62243,8 +62243,8 @@ rule CAPE_Zloader : FILE
 		date = "2021-03-12"
 		modified = "2024-05-03"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Zloader.yar#L1-L12"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Zloader.yar#L1-L12"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "319adca805083c7f5854fe840447cf961addbd748f1f25eb8ec8cdeed7af38aa"
 		score = 75
 		quality = 70
@@ -62267,8 +62267,8 @@ rule CAPE_Zloader_2024 : FILE
 		date = "2021-03-12"
 		modified = "2024-05-03"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Zloader.yar#L14-L26"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Zloader.yar#L14-L26"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "38d555ef5f613cf7ca043697c479100a7a22e7f043acf8b6a46f8009eb92fd7e"
 		score = 75
 		quality = 70
@@ -62292,8 +62292,8 @@ rule CAPE_Guloaderprecursor : FILE
 		date = "2020-12-29"
 		modified = "2023-10-02"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Guloader.yar#L17-L28"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Guloader.yar#L17-L28"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "ea05c352739366a03da302074b01537382ba26f7fd5049004f156e47d284f070"
 		score = 75
 		quality = 70
@@ -62316,8 +62316,8 @@ rule CAPE_Rhadamanthys
 		date = "2023-01-25"
 		modified = "2025-11-11"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Rhadamanthys.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Rhadamanthys.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "3c8fbfe14f81e099fc900023d9c856e3f45b99af38889ed952b2ac67a636f51d"
 		score = 75
 		quality = 70
@@ -62342,8 +62342,8 @@ rule CAPE_Rhadaanti
 		date = "2023-01-25"
 		modified = "2025-11-11"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Rhadamanthys.yar#L15-L24"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Rhadamanthys.yar#L15-L24"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "b54fd25e3297d358f2a8ec3a868bb4d233ee32d6942f21a53c3d25d35164530b"
 		score = 75
 		quality = 70
@@ -62365,8 +62365,8 @@ rule CAPE_Rhadunhook
 		date = "2023-01-25"
 		modified = "2025-11-11"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Rhadamanthys.yar#L26-L36"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Rhadamanthys.yar#L26-L36"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "f2da2f1ee6b0a3b9fe58b2c35ccf0a0f6dee44228ec92659370d30defdef7ea3"
 		score = 75
 		quality = 70
@@ -62390,8 +62390,8 @@ rule CAPE_Modiloader : FILE
 		date = "2023-10-19"
 		modified = "2025-01-31"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/ModiLoader.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/ModiLoader.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "1f0cbf841a6bc18d632e0bc3c591266e77c99a7717a15fc4b84d3e936605761f"
 		logic_hash = "9e64e0c40192cc832a1ffa7b3ac65a704596af82515d03706cd7aa1f4498f32f"
 		score = 75
@@ -62415,8 +62415,8 @@ rule CAPE_Modiloaderold : FILE
 		date = "2023-10-19"
 		modified = "2025-01-31"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/ModiLoader.yar#L15-L53"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/ModiLoader.yar#L15-L53"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "fc006377e6d41515503b0b234ff87f59d930a7d9f8b32d2e072de79b9c52ddc4"
 		score = 75
 		quality = 66
@@ -62460,8 +62460,8 @@ rule CAPE_Amatera : FILE
 		date = "2025-06-25"
 		modified = "2025-06-25"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Amatera.yar#L1-L14"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Amatera.yar#L1-L14"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "35eb93548a0c037d392f870c05e0e9fb1aeff3a5a505e1d4a087f7465ed1f6af"
 		logic_hash = "1c02f04846568b85acbd4101b2e944dc824179f7cff1bceaec1c657939b610d5"
 		score = 75
@@ -62486,8 +62486,8 @@ rule CAPE_Loadersyscall
 		date = "2024-10-29"
 		modified = "2025-07-23"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/NitrogenLoader.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/NitrogenLoader.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "3c7ffd8b95032cffecff7fa7e5f5f561cce13e1109f6a9b30bc743642b495e45"
 		score = 75
 		quality = 70
@@ -62511,8 +62511,8 @@ rule CAPE_Nitrogenloaderaes
 		date = "2024-10-29"
 		modified = "2025-07-23"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/NitrogenLoader.yar#L15-L27"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/NitrogenLoader.yar#L15-L27"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "de8ed0e98948cfadfd579e334fd9ce9f777ddbd988de897529ba71cb5eb2d396"
 		score = 75
 		quality = 70
@@ -62536,8 +62536,8 @@ rule CAPE_Nitrogenloaderbypass
 		date = "2024-10-29"
 		modified = "2025-07-23"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/NitrogenLoader.yar#L29-L41"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/NitrogenLoader.yar#L29-L41"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "3a034d3ddd18723ea1f91814c8c2a2c47a749dfd1496a5d4777d8ff8bfab3457"
 		score = 75
 		quality = 70
@@ -62561,8 +62561,8 @@ rule CAPE_Nitrogenloaderconfig
 		date = "2024-10-29"
 		modified = "2025-07-23"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/NitrogenLoader.yar#L43-L66"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/NitrogenLoader.yar#L43-L66"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "06d49ebf3f67476c83a77734dff0245a51027a35d92e5af07bb9146db5b156ca"
 		score = 75
 		quality = 70
@@ -62597,8 +62597,8 @@ rule CAPE_Dridexloader : FILE
 		date = "2021-03-09"
 		modified = "2021-03-09"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/DridexLoader.yar#L1-L11"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/DridexLoader.yar#L1-L11"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "00a3e4e80a2558ee52035f091e2339fa2dad6f6515b9dc099f2f3800e4c70bce"
 		score = 75
 		quality = 70
@@ -62620,8 +62620,8 @@ rule CAPE_Doomedloader : FILE
 		date = "2024-04-12"
 		modified = "2024-07-25"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/DoomedLoader.yar#L1-L12"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/DoomedLoader.yar#L1-L12"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "54a5962ef49ebf987908c4ea1559788f7c96a7e4ea61d2973636e998a0239c77"
 		score = 75
 		quality = 70
@@ -62645,8 +62645,8 @@ rule CAPE_Cargobayloader : FILE
 		date = "2023-02-20"
 		modified = "2023-02-20"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/CargoBayLoader.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/CargoBayLoader.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "75e975031371741498c5ba310882258c23b39310bd258239277708382bdbee9c"
 		logic_hash = "1d5c4ca79f97e1fac358189a8c6530be12506974fc2fb42f63b0b621536a45c9"
 		score = 75
@@ -62670,8 +62670,8 @@ rule CAPE_Xworm
 		date = "2023-11-07"
 		modified = "2023-11-07"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/XWorm.yar#L1-L11"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/XWorm.yar#L1-L11"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "d8e103f3470e83d71cd4992b74698c0721b8a69d764fdb7a4543997b2853014a"
 		score = 75
 		quality = 70
@@ -62693,8 +62693,8 @@ rule CAPE_Heavenssyscall : FILE
 		date = "2024-03-25"
 		modified = "2024-03-25"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/HeavensSyscall.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/HeavensSyscall.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "aeb981fcba0936ff8b1be4c601445fd45e5d3b74856a9439d351edd57f5a50c3"
 		score = 75
 		quality = 70
@@ -62718,8 +62718,8 @@ rule CAPE_Latrodectus : FILE
 		date = "2024-02-26"
 		modified = "2024-02-26"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Latrodectus.yar#L1-L12"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Latrodectus.yar#L1-L12"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "378d220bc863a527c2bca204daba36f10358e058df49ef088f8b1045604d9d05"
 		logic_hash = "c2c9f23e287253d766425c05eb774f6e07bdcbabc259e04b723a1a87c8b91fbd"
 		score = 75
@@ -62742,8 +62742,8 @@ rule CAPE_Agentteslav4Jit
 		date = "2023-09-13"
 		modified = "2024-02-27"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/AgentTesla.yar#L1-L14"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/AgentTesla.yar#L1-L14"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "8f7144d2a989ce8d291af926b292f5f0f7772e707b0e49797eba13ecf91b90bc"
 		score = 75
 		quality = 70
@@ -62768,8 +62768,8 @@ rule CAPE_Agentteslav3Jit
 		date = "2023-09-13"
 		modified = "2024-02-27"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/AgentTesla.yar#L16-L26"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/AgentTesla.yar#L16-L26"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "62a49cf4295df637f96ba7c127cfc4aeb9af2fcced497fdf34d726a062edc1ec"
 		score = 75
 		quality = 70
@@ -62791,8 +62791,8 @@ rule CAPE_Slowloader
 		date = "2024-09-23"
 		modified = "2024-09-23"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/SlowLoader.yar#L1-L12"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/SlowLoader.yar#L1-L12"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "f07528c646ebd980a5e843caa4a4715e31b22c3cd091576600e9fe45d7fc2fe4"
 		score = 75
 		quality = 70
@@ -62815,8 +62815,8 @@ rule CAPE_Privateloader
 		date = "2024-10-04"
 		modified = "2024-10-04"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/PrivateLoader.yar#L1-L12"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/PrivateLoader.yar#L1-L12"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "204a86bb3743f19fed0fe55ff5ccd716661f7f315b5966a29e434ccb3e160526"
 		score = 75
 		quality = 70
@@ -62839,8 +62839,8 @@ rule CAPE_Icedidsyscallwritemem : FILE
 		date = "2021-03-30"
 		modified = "2023-11-28"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/IcedID.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/IcedID.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "6b068106b038e9efeb9057cadf314d400c1ada1a1cc70336d3272da3a212c993"
 		score = 75
 		quality = 70
@@ -62864,8 +62864,8 @@ rule CAPE_Icedidhook
 		date = "2021-03-30"
 		modified = "2023-11-28"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/IcedID.yar#L15-L25"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/IcedID.yar#L15-L25"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "fd62e0ed6f2a18472fa9336daee0e8a3a55e21779a8385394e85f96da928e24f"
 		score = 75
 		quality = 70
@@ -62887,8 +62887,8 @@ rule CAPE_Icedidpackera : FILE
 		date = "2021-03-30"
 		modified = "2023-11-28"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/IcedID.yar#L27-L40"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/IcedID.yar#L27-L40"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "fbad60002286599ca06d0ecb3624740efbf13ee5fda545341b3e0bf4d5348cfe"
 		logic_hash = "aa0681e7794546355e6d61f739c49035a493cdfca7e666531d74e3835ec44408"
 		score = 75
@@ -62913,8 +62913,8 @@ rule CAPE_Icedidpackerb : FILE
 		date = "2021-03-30"
 		modified = "2023-11-28"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/IcedID.yar#L42-L56"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/IcedID.yar#L42-L56"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "6517ef2c579002ec62ddeb01a3175917c75d79ceca355c415a4462922c715cb6"
 		logic_hash = "fde1e2c0124d180b2fa3d0675b35e8d78fdd7b06cd27e9228c148aa29ce30ee7"
 		score = 75
@@ -62939,8 +62939,8 @@ rule CAPE_Icedidpackerc : FILE
 		date = "2021-03-30"
 		modified = "2023-11-28"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/IcedID.yar#L58-L71"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/IcedID.yar#L58-L71"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "c06805b6efd482c1a671ec60c1469e47772c8937ec0496f74e987276fa9020a5"
 		hash = "265c1857ac7c20432f36e3967511f1be0b84b1c52e4867889e367c0b5828a844"
 		logic_hash = "f1e75e380ab0947fdfda012b7a5077a1c2ef51163239846ab2dc29cac95ba166"
@@ -62965,8 +62965,8 @@ rule CAPE_Icedidpackerd : FILE
 		date = "2021-03-30"
 		modified = "2023-11-28"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/IcedID.yar#L73-L86"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/IcedID.yar#L73-L86"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "7b226f8cc05fa7d846c52eb0ec386ab37f9bae04372372509daa6bacc9f885d8"
 		logic_hash = "6685e0246f5a11ce0ca33447837de06506b447a5f8591423e2b76f2ab0274dc7"
 		score = 75
@@ -62991,8 +62991,8 @@ rule CAPE_Icedsleep : FILE
 		date = "2021-03-30"
 		modified = "2023-11-28"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/IcedID.yar#L88-L99"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/IcedID.yar#L88-L99"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "0b1a8be95b1b8a3b066837f9e47561ee8202d741b39d64e626c0461c2fbf7c70"
 		score = 75
 		quality = 70
@@ -63015,8 +63015,8 @@ rule CAPE_Emotetpacker : FILE
 		date = "2022-03-31"
 		modified = "2022-06-09"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/EmotetPacker.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/EmotetPacker.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "5a95d1d87ce69881b58a0e3aafc1929861e2633cdd960021d7b23e2a36409e0d"
 		logic_hash = "5f27d9d18884f7e0805f69960869b332c1577bf8be8ac103285e8bf98cda0ffd"
 		score = 75
@@ -63040,8 +63040,8 @@ rule CAPE_Risepro : FILE
 		date = "2023-12-16"
 		modified = "2023-12-16"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/RisePro.yar#L1-L14"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/RisePro.yar#L1-L14"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "1b69a1dd5961241b926605f0a015fa17149c3b2759fb077a30a22d4ddcc273f6"
 		logic_hash = "055ca8328923b91f93c116e4a856366356fa11155f4e9fde95da31129b51386a"
 		score = 75
@@ -63066,8 +63066,8 @@ rule CAPE_Bumblebee : FILE
 		date = "2022-04-21"
 		modified = "2023-02-08"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/BumbleBee.yar#L34-L46"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/BumbleBee.yar#L34-L46"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "0a632a0b30b28d544880eb1cfdd85e95f455c343d60f8d6922d4196ef7415961"
 		score = 75
 		quality = 70
@@ -63091,8 +63091,8 @@ rule CAPE_Vbcrypter
 		date = "2021-03-28"
 		modified = "2021-03-28"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/VBCrypter.yar#L1-L11"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/VBCrypter.yar#L1-L11"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "a62bca62ab624ab1a2c2e612c5b7e6d543006026a49c07c46800499e31e41c4e"
 		score = 75
 		quality = 70
@@ -63114,8 +63114,8 @@ rule CAPE_Themida : FILE
 		date = "2024-09-10"
 		modified = "2024-09-11"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Themida.yar#L1-L12"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Themida.yar#L1-L12"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "c4f1e01a3fe3cb66062ce03253bfe9edc09dc6f1a77db99b281106e8ceff9257"
 		score = 75
 		quality = 70
@@ -63138,8 +63138,8 @@ rule CAPE_Mysterysnail
 		date = "2021-10-16"
 		modified = "2021-10-16"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/MysterySnail.yar#L1-L11"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/MysterySnail.yar#L1-L11"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "9402dbbbfdd286e2309ee83fc08194f70f73657a3a4e3785dfbcb564dbee86a8"
 		score = 75
 		quality = 70
@@ -63161,8 +63161,8 @@ rule CAPE_Rdtscpantivm
 		date = "2021-12-11"
 		modified = "2021-12-11"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/RdtscpAntiVM.yar#L1-L11"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/RdtscpAntiVM.yar#L1-L11"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "be0f9b52fb630730a38160f4ad2d50b6b4bea5edd82e3ea4d1e257cf7b090910"
 		score = 75
 		quality = 70
@@ -63184,8 +63184,8 @@ rule CAPE_Aurastealerbypass
 		date = "2025-09-02"
 		modified = "2025-09-02"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/AuraStealer.yar#L1-L14"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/AuraStealer.yar#L1-L14"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "ae174c96c262b1734c58bd6c5f7112221b08596c180612e4970acada35dbd070"
 		score = 75
 		quality = 70
@@ -63210,8 +63210,8 @@ rule CAPE_Smokeinjector : FILE
 		date = "2023-02-06"
 		modified = "2025-11-19"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/SmokeLoader.yar#L1-L11"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/SmokeLoader.yar#L1-L11"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "757a2bf8aceb92bee839bfcaba3b1a8bc4c037812b969e0f493e4f7a4ddc9ede"
 		score = 75
 		quality = 70
@@ -63234,8 +63234,8 @@ rule CAPE_Darkgateloader
 		date = "2023-08-09"
 		modified = "2025-04-07"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/DarkGateLoader.yar#L1-L15"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/DarkGateLoader.yar#L1-L15"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "00692123615d2f7eaf8aea07754fc9439cf58e1fb8eb4f44f0428b362f27e794"
 		score = 75
 		quality = 70
@@ -63261,8 +63261,8 @@ rule CAPE_Gettickcountantivm
 		date = "2021-12-14"
 		modified = "2022-02-25"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/GetTickCountAntiVM.yar#L1-L20"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/GetTickCountAntiVM.yar#L1-L20"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "662bc7839ed7ddd82d5fdafa29fafd9a9ec299c28820fe4104fbba9be1a09c42"
 		hash = "00f1537b13933762e1146e41f3bac668123fac7eacd0aa1f7be0aa37a91ef3ce"
 		hash = "549bca48d0bac94b6a1e6eb36647cd007fed5c0e75a0e4aa315ceabdafe46541"
@@ -63293,8 +63293,8 @@ rule CAPE_Remus : FILE
 		date = "2026-07-31"
 		modified = "2026-08-19"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/Remus.yar#L1-L14"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/Remus.yar#L1-L14"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "836b4219141a17ba963155881d8d166fe528fcb8804135ceac4141de03796601"
 		score = 75
 		quality = 70
@@ -63320,8 +63320,8 @@ rule CAPE_Hijackloaderstub
 		date = "2026-01-26"
 		modified = "2026-01-26"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/HijackLoader.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/HijackLoader.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "686a19a416b94f6ccdd1891ff027452c84b2171ee4268ff971f490e18948a6f5"
 		score = 75
 		quality = 70
@@ -63345,8 +63345,8 @@ rule CAPE_Buerloader : FILE
 		date = "2021-03-13"
 		modified = "2021-03-13"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/BuerLoader.yar#L1-L11"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/BuerLoader.yar#L1-L11"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "6f9f9b4c01251c0643c61701084cca2bdfeea08ca95f982355565cf05483d940"
 		score = 75
 		quality = 70
@@ -63368,8 +63368,8 @@ rule CAPE_Qakbot5 : FILE
 		date = "2022-03-16"
 		modified = "2024-02-16"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/QakBot.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/QakBot.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "303ea2d8d1a7f0fd0ca5508dae2c1b83c03b1e3e975760f15d36d93bcc152767"
 		score = 75
 		quality = 70
@@ -63393,8 +63393,8 @@ rule CAPE_Qakbot4 : FILE
 		date = "2022-03-16"
 		modified = "2024-02-16"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/QakBot.yar#L15-L29"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/QakBot.yar#L15-L29"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "ad75b07b9b786f634fd46cbe6dc089d3f732673320e70714e8ab058f0392c9f5"
 		score = 75
 		quality = 70
@@ -63420,8 +63420,8 @@ rule CAPE_Qakbotloader : FILE
 		date = "2022-03-16"
 		modified = "2024-02-16"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/QakBot.yar#L31-L46"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/QakBot.yar#L31-L46"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "6f99171c95a8ed5d056eeb9234dbbee123a6f95f481ad0e0a966abd2844f0e1a"
 		logic_hash = "00869c0a9bf62cde3f46ca915b0ef689557b09dc58d6de34609e3998abfa7e98"
 		score = 75
@@ -63448,8 +63448,8 @@ rule CAPE_Qakbotantivm
 		date = "2022-03-16"
 		modified = "2024-02-16"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/analyzer/windows/data/yara/QakBot.yar#L48-L59"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/analyzer/windows/data/yara/QakBot.yar#L48-L59"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "e269497ce458b21c8427b3f6f6594a25d583490930af2d3395cb013b20d08ff7"
 		logic_hash = "20f1cd28f38945a3aa328e77e78525fb1ffc47ecf54d5a40c2f18264c3973989"
 		score = 75
@@ -63472,8 +63472,8 @@ rule CAPE_Wanacry : FILE
 		date = "2019-10-30"
 		modified = "2022-06-09"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/WanaCry.yar#L1-L16"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/WanaCry.yar#L1-L16"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "16d5e39f043d27bbf22f8f21e13971b7e0709b07e44746dd157d11ee4cc51944"
 		score = 75
 		quality = 70
@@ -63499,8 +63499,8 @@ rule CAPE_Conti : FILE
 		date = "2020-10-19"
 		modified = "2021-03-15"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Conti.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Conti.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "c9842f93d012d0189b9c6f10ad558b37ae66226bbb619ad677f6906ccaf0e848"
 		score = 75
 		quality = 70
@@ -63525,8 +63525,8 @@ rule CAPE_Nighthawk
 		date = "2022-12-03"
 		modified = "2022-12-05"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Nighthawk.yar#L3-L24"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Nighthawk.yar#L3-L24"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "2d77912678e06503ffef0e8ed84aa4f9ac74357480d57742fbae619acebfb5f2"
 		score = 75
 		quality = 70
@@ -63550,8 +63550,8 @@ rule CAPE_Chaosbot : FILE
 		date = "2025-10-16"
 		modified = "2025-10-16"
 		reference = "https://x.com/YungBinary/status/1976580501508182269"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/ChaosBot.yar#L1-L24"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/ChaosBot.yar#L1-L24"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "fcb04697dbef62497421318d5dfe7cdf5533b432975ebbfb3bd64ebbfeb4a592"
 		score = 75
 		quality = 62
@@ -63585,8 +63585,8 @@ rule CAPE_Ursnifv3_1 : FILE
 		date = "2022-05-31"
 		modified = "2023-03-23"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/UrsnifV3.yar#L1-L18"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/UrsnifV3.yar#L1-L18"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "501cd52388aba16f9d33b4555f310e1ad58326916b15358a485c701acb87abd8"
 		score = 75
 		quality = 70
@@ -63615,8 +63615,8 @@ rule CAPE_Hancitor : FILE
 		date = "2019-10-30"
 		modified = "2020-10-20"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Hancitor.yar#L1-L14"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Hancitor.yar#L1-L14"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "84003542a2f587b5fbd43731c4240759806f8ee46df2bd96aae4a3c09d97e41c"
 		score = 75
 		quality = 70
@@ -63641,8 +63641,8 @@ rule CAPE_Trickbot
 		date = "2019-10-30"
 		modified = "2023-02-07"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/TrickBot.yar#L1-L20"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/TrickBot.yar#L1-L20"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "47cc2070b43957601a72745329a9d14fb3fbfd4d2b31cacc35d4ac750dde31ea"
 		score = 75
 		quality = 70
@@ -63673,8 +63673,8 @@ rule CAPE_Trickbot_Permadll_UEFI_Module
 		date = "2019-10-30"
 		modified = "2023-02-07"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/TrickBot.yar#L22-L38"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/TrickBot.yar#L22-L38"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "491115422a6b94dc952982e6914adc39"
 		logic_hash = "564055f56fd19bed8900e6d451ba050b4e9013a9208a3bdc3d3d563567d225d2"
 		score = 75
@@ -63702,8 +63702,8 @@ rule CAPE_Koiloader
 		date = "2024-10-25"
 		modified = "2024-10-25"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/KoiLoader.yar#L1-L35"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/KoiLoader.yar#L1-L35"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "b462e3235c7578450b2b56a8aff875a3d99d22f6970a01db3ba98f7ecb6b01a0"
 		logic_hash = "264a536632f8f11c904b00c9d2e505b3263c733ad8fbc2ef19c25a5ad58cef90"
 		score = 75
@@ -63747,8 +63747,8 @@ rule CAPE_Petya : FILE
 		date = "2019-10-30"
 		modified = "2019-10-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Petya.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Petya.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "f819261bb34f3b2eb7dc2f843b56be25105570fe902a77940a632a54fbe0d014"
 		score = 75
 		quality = 70
@@ -63772,8 +63772,8 @@ rule CAPE_Zerot : FILE
 		date = "2019-10-30"
 		modified = "2019-10-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/ZeroT.yar#L1-L15"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/ZeroT.yar#L1-L15"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "f60ae25ac3cd741b8bdc5100b5d3c474b5d9fbe8be88bfd184994bae106c3803"
 		score = 75
 		quality = 68
@@ -63799,8 +63799,8 @@ rule CAPE_Arkei : FILE
 		date = "2019-10-30"
 		modified = "2025-01-10"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Arkei.yar#L1-L50"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Arkei.yar#L1-L50"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "296e420880d8d2f24424d0411e7ef4939e18147689557512f410da48498a44c9"
 		score = 75
 		quality = 70
@@ -63856,8 +63856,8 @@ rule CAPE_Cryptoshield : FILE
 		date = "2019-10-30"
 		modified = "2019-10-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Cryptoshield.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Cryptoshield.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "46064b4c69cb1af01330c5d194ef50728e0f0479e9fbf72828822935f8e37ac6"
 		score = 75
 		quality = 70
@@ -63881,8 +63881,8 @@ rule CAPE_Atlas : FILE
 		date = "2019-10-30"
 		modified = "2019-10-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Atlas.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Atlas.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "c3f73b29df5caf804dbfe3e6ac07a9e2c772bd2a126f0487e4a65e72bd501e6e"
 		score = 75
 		quality = 70
@@ -63906,8 +63906,8 @@ rule CAPE_Tclient : FILE
 		date = "2019-10-30"
 		modified = "2022-06-09"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/TClient.yar#L1-L11"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/TClient.yar#L1-L11"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "6edcd01e4722b367723ed77d9596877d16ee35dc4c160885d125f83e45cee24d"
 		score = 75
 		quality = 70
@@ -63929,8 +63929,8 @@ rule CAPE_Salat : FILE
 		date = "2026-04-17"
 		modified = "2026-04-17"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Salat.yar#L1-L14"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Salat.yar#L1-L14"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "162a7398e0b2a83029bc3369127330636dce2b4f0874a17049cd90995ad89911"
 		score = 75
 		quality = 70
@@ -63955,8 +63955,8 @@ rule CAPE_Xenorat
 		date = "2024-10-09"
 		modified = "2024-10-09"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/XenoRAT.yar#L1-L14"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/XenoRAT.yar#L1-L14"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "26f520fb69a52d05786fac0e9e38f5db9601da0a3e7768e00975a9684f3560ef"
 		score = 75
 		quality = 66
@@ -63983,8 +63983,8 @@ rule CAPE_Jaff : FILE
 		date = "2019-10-30"
 		modified = "2019-10-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Jaff.yar#L1-L14"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Jaff.yar#L1-L14"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "6806a5eeee04b7436ff694addc334bfc0f1ee611116904d57be9506acfd47418"
 		score = 75
 		quality = 70
@@ -64009,8 +64009,8 @@ rule CAPE_Azorult : FILE
 		date = "2019-10-30"
 		modified = "2022-06-09"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Azorult.yar#L1-L12"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Azorult.yar#L1-L12"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "4691cf48d513d1965416b0cce1b6e19c8f7b393a940afd68b7c6ca8c0d125d90"
 		score = 75
 		quality = 70
@@ -64033,8 +64033,8 @@ rule CAPE_Eternalromance : FILE
 		date = "2019-10-30"
 		modified = "2022-06-09"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/EternalRomance.yar#L1-L33"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/EternalRomance.yar#L1-L33"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "5390fae3e2411a715cdc965df8648c0c4c511d53d5f76031714f1b784b58eb0d"
 		score = 75
 		quality = 68
@@ -64078,8 +64078,8 @@ rule CAPE_Adaptixbeacon
 		date = "2025-06-16"
 		modified = "2025-10-28"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/AdaptixBeacon.yar#L1-L18"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/AdaptixBeacon.yar#L1-L18"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "f78f5803be5704420cbb2e0ac3c57fcb3d9cdf443fbf1233c069760bee115b5d"
 		logic_hash = "2c1d09cd5e19e5a09dde65411691afd5922959d4a7b5232b28ebf56f26d2f07d"
 		score = 75
@@ -64108,8 +64108,8 @@ rule CAPE_Seduploader : FILE
 		date = "2019-10-30"
 		modified = "2022-06-09"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Seduploader.yar#L1-L11"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Seduploader.yar#L1-L11"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "d70c886699169d4dafc5b063c93682a34af5667df6d293b52256ddc19ab9c516"
 		score = 75
 		quality = 70
@@ -64131,8 +64131,8 @@ rule CAPE_Rozena
 		date = "2024-03-13"
 		modified = "2024-03-15"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Rozena.yar#L1-L10"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Rozena.yar#L1-L10"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "c415a8108b58a125a604031bb8d73b58a8aae5429b5b765e35fa8a4add9cd135"
 		score = 75
 		quality = 70
@@ -64155,8 +64155,8 @@ rule CAPE_Bitpaymer : FILE
 		date = "2019-11-27"
 		modified = "2019-11-27"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/BitPaymer.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/BitPaymer.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "6ae0dc9a36da13e483d8d653276b06f59ecc15c95c754c268dcc91b181677c4c"
 		score = 75
 		quality = 70
@@ -64179,8 +64179,8 @@ rule CAPE_Carbanak : FILE
 		date = "2023-11-30"
 		modified = "2024-03-18"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Carbanak.yar#L1-L14"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Carbanak.yar#L1-L14"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "c9c1b06cb9c9bd6fc4451f5e2847a1f9524bb2870d7bb6f0ee09b9dd4e3e4c84"
 		logic_hash = "8ed5ab07f1635dc7cdf296e86a71a0a99d0b2faef8fc460f43d426b24b8c8367"
 		score = 75
@@ -64206,8 +64206,8 @@ rule CAPE_Netsupport : FILE
 		date = "2025-10-17"
 		modified = "2025-10-17"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/NetSupport.yar#L3-L16"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/NetSupport.yar#L3-L16"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "d12e46d74ae0ba9f599d27dc2f55ff92a6648accbcd1a43cc3f1a9a2755e5fc7"
 		score = 75
 		quality = 70
@@ -64232,8 +64232,8 @@ rule CAPE_Lumma_1 : FILE
 		date = "2024-01-05"
 		modified = "2025-07-08"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Lumma.yar#L1-L16"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Lumma.yar#L1-L16"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "ca7822292c58af68e7a1610362bf0b5d27c93e3222ceec8d216e05a442008f37"
 		score = 75
 		quality = 70
@@ -64260,8 +64260,8 @@ rule CAPE_Badrabbit : FILE
 		date = "2019-10-30"
 		modified = "2019-10-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/BadRabbit.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/BadRabbit.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "309e14ab4ea2f919358631f9d8b2aaff1f51e7708b6114e4e6bf4a9d9a5fc86c"
 		score = 75
 		quality = 70
@@ -64285,8 +64285,8 @@ rule CAPE_Blister_1 : FILE
 		date = "2022-05-10"
 		modified = "2023-09-20"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Blister.yar#L1-L17"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Blister.yar#L1-L17"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "afb77617a4ca637614c429440c78da438e190dd1ca24dc78483aa731d80832c2"
 		hash = "d3eab2a134e7bd3f2e8767a6285b38d19cd3df421e8af336a7852b74f194802c"
 		logic_hash = "f26d85fdf0eb07e67fe38c43c5f6d024bfb7b2a333cb3411f5cdcff6bf5db12d"
@@ -64314,8 +64314,8 @@ rule CAPE_Vidar : FILE
 		date = "2019-10-30"
 		modified = "2026-06-08"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Vidar.yar#L1-L12"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Vidar.yar#L1-L12"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "35f2aa1e2a3f233b3c25893fdb447f11b2ff9f6fdaab1bc1499a12b25c8cb3ee"
 		score = 75
 		quality = 70
@@ -64338,8 +64338,8 @@ rule CAPE_Vidarold : FILE
 		date = "2019-10-30"
 		modified = "2026-06-08"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Vidar.yar#L14-L35"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Vidar.yar#L14-L35"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "5d4c030536ed41cf4e0dcb77b2fe4553d789ee2b8095a4b3e050692335a8709d"
 		score = 75
 		quality = 70
@@ -64372,8 +64372,8 @@ rule CAPE_Dridexv4 : FILE
 		date = "2019-10-30"
 		modified = "2022-05-31"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/DridexV4.yar#L1-L15"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/DridexV4.yar#L1-L15"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "cb103fe5f2d4792e3c612db4e2d84a4c8b0ce0f9a8443e9147e2c345f1dbdff6"
 		score = 75
 		quality = 70
@@ -64399,8 +64399,8 @@ rule CAPE_Formbook
 		date = "2019-10-30"
 		modified = "2023-10-13"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Formbook.yar#L1-L18"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Formbook.yar#L1-L18"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "63ee4dd6fe5ed2a3e5ee88ba7de48d2c9e0024961a550d0fdb68891c9885e05e"
 		score = 75
 		quality = 70
@@ -64429,8 +64429,8 @@ rule CAPE_Bruteratel
 		date = "2024-07-11"
 		modified = "2024-07-11"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/BruteRatel.yar#L1-L14"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/BruteRatel.yar#L1-L14"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "0984977c716d6f8e068c045166eb5db77c9fbce27513e555dceca348375f1a66"
 		score = 75
 		quality = 70
@@ -64455,8 +64455,8 @@ rule CAPE_Megacortex : FILE
 		date = "2019-10-30"
 		modified = "2019-10-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/MegaCortex.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/MegaCortex.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "5de1d8241260070241c91b97f18feb2a90069e3b158e863e2d9f568799c244e6"
 		score = 75
 		quality = 70
@@ -64480,8 +64480,8 @@ rule CAPE_Stealc : FILE
 		date = "2023-02-22"
 		modified = "2025-08-21"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Stealc.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Stealc.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "77d6f1914af6caf909fa2a246fcec05f500f79dd56e5d0d466d55924695c702d"
 		logic_hash = "a6165168b7c74761b91d1691465688c748227b830813067edb4e9bdc934271c4"
 		score = 75
@@ -64505,8 +64505,8 @@ rule CAPE_Stealcv2 : FILE
 		date = "2023-02-22"
 		modified = "2025-08-21"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Stealc.yar#L15-L32"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Stealc.yar#L15-L32"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "911c6a7f63e91a788898f3cc6e66396e39d5bd48f8fbaac49ee5dbbdaa64d5a0"
 		score = 75
 		quality = 70
@@ -64535,8 +64535,8 @@ rule CAPE_Rcsession
 		date = "2019-10-30"
 		modified = "2019-10-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/RCSession.yar#L1-L12"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/RCSession.yar#L1-L12"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "ebd1e9e615a91c35b36332cad55519607323469df738cec4464288b45787630d"
 		score = 75
 		quality = 70
@@ -64559,8 +64559,8 @@ rule CAPE_Ramnit : FILE
 		date = "2019-10-30"
 		modified = "2019-10-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Ramnit.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Ramnit.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "6f661f47bdf8377b0fb96f190fcb964c0ed2b43ce7ae7880f9dfce9e43837efd"
 		score = 75
 		quality = 70
@@ -64584,8 +64584,8 @@ rule CAPE_Cobaltstrikestager
 		date = "2023-01-18"
 		modified = "2023-01-18"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/CobaltStrikeStager.yar#L1-L15"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/CobaltStrikeStager.yar#L1-L15"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "6a55b0c3ab5f557dfb7a3f8bd616ede1bd9b93198590fc9d52aa19c1154388c5"
 		score = 75
 		quality = 70
@@ -64610,8 +64610,8 @@ rule CAPE_Dreambot : FILE
 		date = "2019-10-30"
 		modified = "2019-10-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Dreambot.yar#L1-L14"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Dreambot.yar#L1-L14"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "29c6d648d5d38667c5824c2d20a83a20448c2ae6054ddddb2b2b7f8bdb69f74b"
 		score = 75
 		quality = 70
@@ -64636,8 +64636,8 @@ rule CAPE_Zloader_1 : FILE
 		date = "2020-04-04"
 		modified = "2025-12-09"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Zloader.yar#L1-L18"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Zloader.yar#L1-L18"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "adbd0c7096a7373be82dd03df1aae61cb39e0a155c00bbb9c67abc01d48718aa"
 		logic_hash = "525670973b67aac048199529c97d6be00b0a8cca9bc90deb647366d92a5ea540"
 		score = 75
@@ -64666,8 +64666,8 @@ rule CAPE_Zloader2024 : FILE
 		date = "2020-04-04"
 		modified = "2025-12-09"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Zloader.yar#L20-L34"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Zloader.yar#L20-L34"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "49405370a33abbf131c5d550cebe00780cc3fd3cbe888220686582ae88f16af7"
 		logic_hash = "27d883f6d6cab07e602f97a0a032a152386693f79dabf1bb87b0a8a053a38b03"
 		score = 75
@@ -64693,8 +64693,8 @@ rule CAPE_Zloader2025 : FILE
 		date = "2020-04-04"
 		modified = "2025-12-09"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Zloader.yar#L36-L49"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Zloader.yar#L36-L49"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "86ffd411b42d8d06bdb294f48e79393adeea586c56c5c75c1a68ce6315932881"
 		logic_hash = "cc9c39f0b5e7e8c8853982d9c896bbaac5a36bb0f501c8901d8854f2d5e1a19c"
 		score = 75
@@ -64719,8 +64719,8 @@ rule CAPE_Vipkeylogger : FILE
 		date = "2025-09-11"
 		modified = "2025-09-11"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/VIPKeyLogger.yar#L1-L14"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/VIPKeyLogger.yar#L1-L14"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "b9dba7562bba4807c0789692d44650996e62c8d0c4031dedd65773877621b1de"
 		score = 75
 		quality = 70
@@ -64745,8 +64745,8 @@ rule CAPE_Monsterv2 : FILE
 		date = "2025-09-06"
 		modified = "2025-09-12"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/MonsterV2.yar#L1-L21"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/MonsterV2.yar#L1-L21"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "d4e65f860e69b2eee8a818a4146d91b84ce6da30c8fa27593587932e4f0847a8"
 		score = 75
 		quality = 70
@@ -64778,8 +64778,8 @@ rule CAPE_Bazar : FILE
 		date = "2021-08-26"
 		modified = "2022-06-09"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Bazar.yar#L1-L11"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Bazar.yar#L1-L11"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "9375f59b56e47fd0b90b089afdf3be8f16f960038fc625523a2e2d5509ab099d"
 		score = 75
 		quality = 70
@@ -64802,8 +64802,8 @@ rule CAPE_Stxratloader : FILE
 		date = "2026-04-11"
 		modified = "2026-04-14"
 		reference = "https://www.esentire.com/blog/stx-rat-a-new-rat-in-2026-with-infostealer-capabilities"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/STXRat.yar#L1-L47"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/STXRat.yar#L1-L47"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "e9e9ab77424cfb9a18b5363cde78a953505b7ddd97a057068195510fae7117e0"
 		score = 75
 		quality = 45
@@ -64853,8 +64853,8 @@ rule CAPE_Stxrat : FILE
 		date = "2026-04-11"
 		modified = "2026-04-14"
 		reference = "https://www.esentire.com/blog/stx-rat-a-new-rat-in-2026-with-infostealer-capabilities"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/STXRat.yar#L49-L120"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/STXRat.yar#L49-L120"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "f82b832e6bf936ff936332c059b1d3b981ce387bf82964ecf64a9cb12cda955d"
 		score = 75
 		quality = 70
@@ -64927,8 +64927,8 @@ rule CAPE_Rhadamanthys_1
 		date = "2023-01-25"
 		modified = "2025-12-19"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Rhadamanthys.yar#L1-L19"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Rhadamanthys.yar#L1-L19"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "3ccfc97202690dd996ffd2b4f09d31e6ee322bf9f0b7759f9b8c455164995f84"
 		score = 75
 		quality = 70
@@ -64958,8 +64958,8 @@ rule CAPE_Rhadamanthysloader
 		date = "2023-01-25"
 		modified = "2025-12-19"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Rhadamanthys.yar#L21-L33"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Rhadamanthys.yar#L21-L33"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "5505c9ba1f0c6cb9aa9c212bf8bc2c49ad544e99996a1f4c1fa79a27a14d4c7f"
 		score = 75
 		quality = 70
@@ -64983,8 +64983,8 @@ rule CAPE_Aurorastealer : FILE
 		date = "2022-12-14"
 		modified = "2023-03-31"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/AuroraStealer.yar#L1-L74"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/AuroraStealer.yar#L1-L74"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "51c153501e991f6ce4901e6d9578d0c8"
 		hash = "3816f17052b28603855bde3e57db77a8455bdea4"
 		hash = "c148c449e1f6c4c53a7278090453d935d1ab71c3e8b69511f98993b6057f612d"
@@ -65063,8 +65063,8 @@ rule CAPE_Nitrogenloader : FILE
 		date = "2024-10-29"
 		modified = "2026-05-04"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/NitrogenLoader.yar#L1-L36"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/NitrogenLoader.yar#L1-L36"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "7b603d63a23201ff0b6ffa9acdd650df9caa1731837d559d93b3d8ce1d82a962"
 		hash = "50c2afd792bfe2966133ee385054eaae1f73b04e013ef3434ef2407f99d7f037"
 		hash = "4926dee7da0da522c34ffeebb32f28703fd689a52543332c8d28ccfea223f43a"
@@ -65110,8 +65110,8 @@ rule CAPE_Dridexloader_1 : FILE
 		date = "2019-11-12"
 		modified = "2021-03-10"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/DridexLoader.yar#L1-L17"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/DridexLoader.yar#L1-L17"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "20696b1f14539c8ecf21bffc696596040c20b1ee2fcedc173945482c0baca588"
 		score = 75
 		quality = 70
@@ -65138,8 +65138,8 @@ rule CAPE_Kronos : FILE
 		date = "2019-10-30"
 		modified = "2020-07-02"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Kronos.yar#L1-L14"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Kronos.yar#L1-L14"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "52ce9caf3627efe8ae86df6ca59e51e9f738e13ac0265f797e8d70123dbcaeb3"
 		score = 75
 		quality = 70
@@ -65164,8 +65164,8 @@ rule CAPE_Ryuk : FILE
 		date = "2019-10-30"
 		modified = "2019-10-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Ryuk.yar#L1-L14"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Ryuk.yar#L1-L14"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "b4463993d8956e402b927a3dcfa2ca9693a959908187f720372f2d3a40e6db0c"
 		score = 75
 		quality = 70
@@ -65190,8 +65190,8 @@ rule CAPE_Zeuspanda : FILE
 		date = "2019-10-30"
 		modified = "2022-06-09"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/ZeusPanda.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/ZeusPanda.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "43d8a56cae9fd23c053f6956851734d3270b46a906236854502c136e3bb1e761"
 		score = 75
 		quality = 70
@@ -65214,8 +65214,8 @@ rule CAPE_Cerber : FILE
 		date = "2019-10-30"
 		modified = "2022-06-09"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Cerber.yar#L1-L12"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Cerber.yar#L1-L12"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "16a8f808c28d3b142c079a305aba7f553f2452e439710bf610a06f8f2924d5a3"
 		score = 75
 		quality = 70
@@ -65237,8 +65237,8 @@ rule CAPE_Squirrelwaffle : FILE
 		date = "2021-09-22"
 		modified = "2021-10-13"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/SquirrelWaffle.yar#L1-L11"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/SquirrelWaffle.yar#L1-L11"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "5f799333398421d537ec7a87ca94f6cc9cf1e53e55b353036a5132440990e500"
 		score = 75
 		quality = 70
@@ -65261,8 +65261,8 @@ rule CAPE_Defendnot : FILE
 		date = "2026-09-22"
 		modified = "2026-09-22"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Defendnot.yar#L1-L15"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Defendnot.yar#L1-L15"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "b0870e105c7ad37fb0bdcb9305279b2943810d55300e8721eb64bdaa588cc84e"
 		logic_hash = "77bdd1891d42947b254ffb0b274071e92e7fb7c62bdaa31793258a23a495e477"
 		score = 75
@@ -65288,8 +65288,8 @@ rule CAPE_Amadey : FILE
 		date = "2021-02-18"
 		modified = "2025-08-15"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Amadey.yar#L1-L15"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Amadey.yar#L1-L15"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "988258716d5296c1323303e8fe4efd7f4642c87bfdbe970fe9a3bb3f410f70a4"
 		logic_hash = "5a7405a174b63826500f3b04c6f10bc9b40d5b49e85377bef027204e75dd1e9e"
 		score = 75
@@ -65315,8 +65315,8 @@ rule CAPE_Scarab : FILE
 		date = "2019-10-30"
 		modified = "2019-10-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Scarab.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Scarab.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "0d8fa7ab4c8e5699f17f9e9444e85a42563a840a8e7ee9eda54add3a6845d1c6"
 		score = 75
 		quality = 70
@@ -65340,8 +65340,8 @@ rule CAPE_Latrodectus_1
 		date = "2024-01-18"
 		modified = "2025-05-10"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Latrodectus.yar#L1-L16"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Latrodectus.yar#L1-L16"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "a547cff9991a713535e5c128a0711ca68acf9298cc2220c4ea0685d580f36811"
 		logic_hash = "a8430299930f4c8de0a88c6836d4821871f7183cc5ff44ea9be84fbea47bbb13"
 		score = 75
@@ -65368,8 +65368,8 @@ rule CAPE_Latrodectus_AES
 		date = "2024-01-18"
 		modified = "2025-05-10"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Latrodectus.yar#L18-L34"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Latrodectus.yar#L18-L34"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "5cecb26a3f33c24b92a0c8f6f5175da0664b21d7c4216a41694e4a4cad233ca8"
 		logic_hash = "058d278c16527969066d1b4ea7f0e3ab2809d5480cdab06ec476b465e0c4795a"
 		score = 75
@@ -65397,8 +65397,8 @@ rule CAPE_Agent_Tesla
 		date = "2019-10-30"
 		modified = "2026-01-14"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/AgentTesla.yar#L1-L17"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/AgentTesla.yar#L1-L17"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "3945754129dcc58e0abfd7485f5ff0c0afdd1078ae2cf164ca8f59a6f79db1be"
 		score = 75
 		quality = 70
@@ -65424,8 +65424,8 @@ rule CAPE_Agenttesla : FILE
 		date = "2019-10-30"
 		modified = "2026-01-14"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/AgentTesla.yar#L19-L41"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/AgentTesla.yar#L19-L41"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "1bf9b26c4cf87e674ddffabe40aba5a45499c6a04d4ff3e43c3cda4cbcb4d188"
 		score = 75
 		quality = 70
@@ -65457,8 +65457,8 @@ rule CAPE_Agentteslav2 : FILE
 		date = "2019-10-30"
 		modified = "2026-01-14"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/AgentTesla.yar#L43-L67"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/AgentTesla.yar#L43-L67"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "b45296b3b94fa1ff32de48c94329a17402461fb6696e9390565c4dba9738ed78"
 		score = 75
 		quality = 70
@@ -65494,8 +65494,8 @@ rule CAPE_Agentteslav3 : FILE
 		date = "2019-10-30"
 		modified = "2026-01-14"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/AgentTesla.yar#L69-L115"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/AgentTesla.yar#L69-L115"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "cc9bbbcf3608b49a76b098acf846ff03eae5e9cb107697627d62661fa1be36c2"
 		score = 75
 		quality = 70
@@ -65533,8 +65533,8 @@ rule CAPE_Agentteslav4 : FILE
 		date = "2019-10-30"
 		modified = "2026-01-14"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/AgentTesla.yar#L117-L130"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/AgentTesla.yar#L117-L130"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "0a39036f408728ab312a54ff3354453d171424f57f9a8f3b42af867be3037ca9"
 		score = 75
 		quality = 70
@@ -65559,8 +65559,8 @@ rule CAPE_Oyster
 		date = "2024-03-01"
 		modified = "2024-05-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Oyster.yar#L1-L19"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Oyster.yar#L1-L19"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "8bae0fa9f589cd434a689eebd7a1fde949cc09e6a65e1b56bb620998246a1650"
 		logic_hash = "23ab1518712dbce8319b87785d7ffc0c2b61de82c2bbf533ebf0aae39ec33540"
 		score = 75
@@ -65590,8 +65590,8 @@ rule CAPE_Locky : FILE
 		date = "2019-10-30"
 		modified = "2022-06-09"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Locky.yar#L1-L14"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Locky.yar#L1-L14"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "9786c54a2644d9581fefe64be11b26e22806398e54e961fa4f19d26eae039cd7"
 		score = 75
 		quality = 70
@@ -65615,8 +65615,8 @@ rule CAPE_Emotetloader : FILE
 		date = "2022-05-31"
 		modified = "2022-05-31"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/EmotetLoader.yar#L1-L12"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/EmotetLoader.yar#L1-L12"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "410872d25ed3a89a2cba108f952d606cd1c3bf9ccc89ae6ab3377b83665c2773"
 		score = 75
 		quality = 70
@@ -65638,8 +65638,8 @@ rule CAPE_Remcos : FILE
 		date = "2019-10-30"
 		modified = "2022-05-10"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Remcos.yar#L1-L14"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Remcos.yar#L1-L14"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "38142e784ad437d9592353b924f74777bb62e5ed176c811230a2021a437d4710"
 		score = 75
 		quality = 68
@@ -65664,8 +65664,8 @@ rule CAPE_Masslogger : FILE
 		date = "2020-10-20"
 		modified = "2020-11-24"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/MassLogger.yar#L1-L12"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/MassLogger.yar#L1-L12"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "c8d82694810aafbdc6a35a661e7431e9536035e2f7fef90b9359064c4209b66c"
 		score = 75
 		quality = 70
@@ -65688,8 +65688,8 @@ rule CAPE_Azer : FILE
 		date = "2019-10-30"
 		modified = "2019-10-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Azer.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Azer.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "48bd4a4e071f10d1911c4173a0cd39c69fed7a3b29eb92beffe709899f4cefa5"
 		score = 75
 		quality = 70
@@ -65713,8 +65713,8 @@ rule CAPE_Rokrat : FILE
 		date = "2019-10-30"
 		modified = "2022-06-09"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/RokRat.yar#L1-L12"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/RokRat.yar#L1-L12"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "2aaa7de7ccd59e0da690f4bc0c7deaacf61314d61f8d2aa3ce6f6892f50612ec"
 		score = 75
 		quality = 70
@@ -65737,8 +65737,8 @@ rule CAPE_Nightshadec2 : FILE
 		date = "2025-09-04"
 		modified = "2025-09-12"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/NightshadeC2.yar#L1-L20"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/NightshadeC2.yar#L1-L20"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "963c012d56c62093d105ab5044517fdcce4ab826f7782b3e377932da1df6896d"
 		logic_hash = "f9fabc391e21180a1c92abea0a5ded6d7669e8d8f2330b69d6c1227c9b4237a0"
 		score = 75
@@ -65768,8 +65768,8 @@ rule CAPE_Icedid
 		date = "2019-10-30"
 		modified = "2021-12-16"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/IcedID.yar#L1-L18"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/IcedID.yar#L1-L18"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "e60ccbab7a360020744eba65961156ca3e2ae9cf23671014f913d71c1a96a331"
 		score = 75
 		quality = 45
@@ -65798,8 +65798,8 @@ rule CAPE_Pikabotloader : FILE
 		date = "2023-02-13"
 		modified = "2024-03-13"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/PikaBot.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/PikaBot.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "7e5f1f2911545ee6bd36b54f2627fbdec1b957f4b91df901dd1c6cbd4dff0231"
 		score = 75
 		quality = 70
@@ -65823,8 +65823,8 @@ rule CAPE_Pikabot : FILE
 		date = "2023-02-13"
 		modified = "2024-03-13"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/PikaBot.yar#L15-L28"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/PikaBot.yar#L15-L28"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "ed07217c373831a9a67d914854154988696e6fcea70dedabf333385f0e7bb8b7"
 		score = 75
 		quality = 70
@@ -65849,8 +65849,8 @@ rule CAPE_Pik23 : FILE
 		date = "2023-02-13"
 		modified = "2024-03-13"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/PikaBot.yar#L30-L44"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/PikaBot.yar#L30-L44"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "59f42ecde152f78731e54ea27e761bba748c9309a6ad1c2fd17f0e8b90f8aed1"
 		logic_hash = "71a71df2f2a075294941c54eed06cafaaa4d3294e45b3a0098c1cffddd0438bc"
 		score = 75
@@ -65876,8 +65876,8 @@ rule CAPE_Ursnif : FILE
 		date = "2019-10-30"
 		modified = "2019-10-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Ursnif.yar#L1-L19"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Ursnif.yar#L1-L19"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "46e79fde81ff5352314618021e394b2e0322df07170c7279363290b7134935fd"
 		score = 75
 		quality = 70
@@ -65906,8 +65906,8 @@ rule CAPE_Kpot : FILE
 		date = "2020-10-19"
 		modified = "2020-10-19"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Kpot.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Kpot.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "75abaab9a10e8ac8808425c389238285ab9bd9cb76f0cd03cc1e35b3ea0a1b0f"
 		score = 75
 		quality = 70
@@ -65931,8 +65931,8 @@ rule CAPE_Asyncrat_Kingrat
 		date = "2024-10-09"
 		modified = "2025-02-03"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/AsyncRAT.yar#L1-L30"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/AsyncRAT.yar#L1-L30"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "1400d2029dfb66d8f2dc34db8643d6301f3af9bd356639f883d2c10bcc0c3947"
 		score = 75
 		quality = 58
@@ -65970,8 +65970,8 @@ rule CAPE_Stormkitty : FILE
 		date = "2024-10-09"
 		modified = "2025-02-03"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/AsyncRAT.yar#L32-L57"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/AsyncRAT.yar#L32-L57"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "258f5d9da80ff912459194b1139f062491df21a44456942951e2bd98e4b86c9b"
 		score = 75
 		quality = 66
@@ -66006,8 +66006,8 @@ rule CAPE_Worldwind : FILE
 		date = "2024-10-09"
 		modified = "2025-02-03"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/AsyncRAT.yar#L60-L82"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/AsyncRAT.yar#L60-L82"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "9bb04fad460193cd877ea7f2de9337f69aadda01aee6c79f0a23cdf564b1e6c8"
 		score = 75
 		quality = 70
@@ -66042,8 +66042,8 @@ rule CAPE_Prynt : FILE
 		date = "2024-10-09"
 		modified = "2025-02-03"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/AsyncRAT.yar#L85-L107"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/AsyncRAT.yar#L85-L107"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "84f2b33285ab1d129a62940a02990639cc8f7c92d490d7257e6aed9170d1e34e"
 		score = 75
 		quality = 70
@@ -66078,8 +66078,8 @@ rule CAPE_Xworm_1 : FILE
 		date = "2024-10-09"
 		modified = "2025-02-03"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/AsyncRAT.yar#L110-L136"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/AsyncRAT.yar#L110-L136"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "5a86c2f0a188135e53d86c176806a208abbe3dd830bde364016859ffa5294bd7"
 		score = 75
 		quality = 68
@@ -66118,8 +66118,8 @@ rule CAPE_Xworm_Kingrat
 		date = "2024-10-09"
 		modified = "2025-02-03"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/AsyncRAT.yar#L138-L155"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/AsyncRAT.yar#L138-L155"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "3914be652bb7271e5e6b89d05edf10a54f8ddaf9e22d194b60501aa2cdd495d3"
 		score = 75
 		quality = 66
@@ -66150,8 +66150,8 @@ rule CAPE_Dcrat : FILE
 		date = "2024-10-09"
 		modified = "2025-02-03"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/AsyncRAT.yar#L157-L222"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/AsyncRAT.yar#L157-L222"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "5a02dcc2b9c7eb3efdba39047e37886240b45fb7e2db3b82aa5b4b9526dfb7f8"
 		score = 75
 		quality = 45
@@ -66224,8 +66224,8 @@ rule CAPE_Dcrat_Kingrat
 		date = "2024-10-09"
 		modified = "2025-02-03"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/AsyncRAT.yar#L224-L243"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/AsyncRAT.yar#L224-L243"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "73ac27c3f0fc71d053e89690b5a7d29c1f8b0ea0a22e8595148a9001799fae54"
 		score = 75
 		quality = 62
@@ -66257,8 +66257,8 @@ rule CAPE_Quasarrat : FILE
 		date = "2024-10-09"
 		modified = "2025-02-03"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/AsyncRAT.yar#L245-L266"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/AsyncRAT.yar#L245-L266"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "556b19dc0980761198ea31a285f281adae084463d24bff1eda15326436ad562b"
 		score = 75
 		quality = 70
@@ -66292,8 +66292,8 @@ rule CAPE_Quasarrat_Kingrat
 		date = "2024-10-09"
 		modified = "2025-02-03"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/AsyncRAT.yar#L268-L287"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/AsyncRAT.yar#L268-L287"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "1f4296a592134edbe52e256dc353143af02e897ff1afad98f3dac0c5ab13f3f7"
 		score = 75
 		quality = 70
@@ -66325,8 +66325,8 @@ rule CAPE_Codoso : FILE
 		date = "2019-10-30"
 		modified = "2019-10-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Codoso.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Codoso.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "32c9ed2ac29e8905266977a9ee573a252442d96fb9ec97d88642180deceec3f8"
 		score = 75
 		quality = 70
@@ -66350,8 +66350,8 @@ rule CAPE_Varenyky : FILE
 		date = "2019-10-30"
 		modified = "2019-10-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Varenyky.yar#L1-L11"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Varenyky.yar#L1-L11"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "602f1b8b60b29565eabe2171fde4eb58546af68f8acecad402a7a51ea9a08ed9"
 		score = 75
 		quality = 70
@@ -66373,8 +66373,8 @@ rule CAPE_Nanolocker : FILE
 		date = "2019-10-30"
 		modified = "2019-10-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/NanoLocker.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/NanoLocker.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "fe6c8a4e259c3c526f8f50771251f6762b2b92a4df2e8bfc705f282489f757db"
 		score = 75
 		quality = 70
@@ -66398,8 +66398,8 @@ rule CAPE_Bumblebeeshellcode_1
 		date = "2022-04-21"
 		modified = "2024-10-29"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/BumbleBee.yar#L18-L33"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/BumbleBee.yar#L18-L33"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "d56f8c4e491d0d1b34e396e73750bef9917ca4f708fb6a2681de772a65c13a40"
 		score = 75
 		quality = 70
@@ -66426,8 +66426,8 @@ rule CAPE_Bumblebee_1 : FILE
 		date = "2022-04-21"
 		modified = "2024-10-29"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/BumbleBee.yar#L35-L50"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/BumbleBee.yar#L35-L50"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "bc7c2ce9d3cd598c9510dc64d78048999f2f89ee5a84cd0d6046dbdfabe260ee"
 		score = 75
 		quality = 70
@@ -66454,8 +66454,8 @@ rule CAPE_Bumblebee2024
 		date = "2022-04-21"
 		modified = "2024-10-29"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/BumbleBee.yar#L52-L68"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/BumbleBee.yar#L52-L68"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "db58272c1ba74bc6e6a90bdacf7e8feec94be5da2b5123e0475ce86448f3edb2"
 		score = 75
 		quality = 70
@@ -66483,8 +66483,8 @@ rule CAPE_Darkcloud : FILE
 		date = "2025-10-16"
 		modified = "2025-10-16"
 		reference = "https://x.com/YungBinary/status/1971585972912689643"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/DarkCloud.yar#L1-L39"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/DarkCloud.yar#L1-L39"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "e9a67fce4c1e4ffa7322c225522263aa4db94ae9f29113a81f5216fb4fa68b57"
 		score = 75
 		quality = 68
@@ -66528,8 +66528,8 @@ rule CAPE_Nemty : FILE
 		date = "2020-04-03"
 		modified = "2020-04-03"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Nemty.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Nemty.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "a05974b561c67b4f1e0812639b74831edcf65686a06c0d380f0b45739e342419"
 		score = 75
 		quality = 70
@@ -66553,8 +66553,8 @@ rule CAPE_Gootkit : FILE
 		date = "2019-10-30"
 		modified = "2019-10-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Gootkit.yar#L1-L11"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Gootkit.yar#L1-L11"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "26704b6b0adca51933fc9d5e097930320768fd0e9355dcefc725aee7775316e7"
 		score = 75
 		quality = 70
@@ -66576,8 +66576,8 @@ rule CAPE_Mole : FILE
 		date = "2019-10-30"
 		modified = "2019-10-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Mole.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Mole.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "8be4d190d554a610360c0e04b33da59eb00319395e5b2000d580546ce6503786"
 		score = 75
 		quality = 70
@@ -66601,8 +66601,8 @@ rule CAPE_Lockbit : FILE
 		date = "2020-05-14"
 		modified = "2022-06-09"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Lockbit.yar#L1-L15"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Lockbit.yar#L1-L15"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "80ab705c8246a0bd5b3de65146cf32b102f39bf9444bdf1d366b5a794c1229b9"
 		score = 75
 		quality = 70
@@ -66628,8 +66628,8 @@ rule CAPE_Nitrobunnydownloader : FILE
 		date = "2025-10-28"
 		modified = "2025-11-05"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/NitroBunnyDownloader.yar#L1-L18"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/NitroBunnyDownloader.yar#L1-L18"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "960e59200ec0a4b5fb3b44e6da763f5fec4092997975140797d4eec491de411b"
 		logic_hash = "dcc1348c1d1af0c854376cf6331538951362b43d8d76c0ad73bbbdeb1ab4c135"
 		score = 75
@@ -66658,8 +66658,8 @@ rule CAPE_Obfuscar : FILE
 		date = "2025-03-07"
 		modified = "2025-03-07"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Obfuscar.yar#L1-L12"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Obfuscar.yar#L1-L12"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "54581e83e5fa13fae4bda74016b3fa1d18c92e2659f493ebe54d70fd5f77bba5"
 		score = 75
 		quality = 70
@@ -66680,8 +66680,8 @@ rule CAPE_Aurastealer
 		date = "2025-09-02"
 		modified = "2025-09-02"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/AuraStealer.yar#L1-L18"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/AuraStealer.yar#L1-L18"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "960b83639a898509dc272f3235822401a8f861fa6607991993285b618b882d8b"
 		score = 75
 		quality = 70
@@ -66710,8 +66710,8 @@ rule CAPE_Smokeloader
 		date = "2019-10-30"
 		modified = "2025-11-19"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/SmokeLoader.yar#L1-L16"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/SmokeLoader.yar#L1-L16"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "8e2f95af9b25ccfd8ad7b56f75a37bb085bde1b2feda2e6502568e86c928ed68"
 		score = 75
 		quality = 70
@@ -66738,8 +66738,8 @@ rule CAPE_Petrwrap : FILE
 		date = "2019-10-30"
 		modified = "2022-06-09"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/PetrWrap.yar#L1-L15"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/PetrWrap.yar#L1-L15"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "6dd1cf5639b63d0ab41b24080dad68d285f2e3969ad34fd724c83e7a0dd4b968"
 		score = 75
 		quality = 70
@@ -66764,8 +66764,8 @@ rule CAPE_Tscookie : FILE
 		date = "2019-10-30"
 		modified = "2019-10-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/TSCookie.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/TSCookie.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "0461c7fd14c74646437654f0a63a4a89d4efad620e197a8ca1e8d390618842c3"
 		score = 75
 		quality = 70
@@ -66789,8 +66789,8 @@ rule CAPE_Magniber : FILE
 		date = "2019-10-30"
 		modified = "2019-10-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Magniber.yar#L1-L11"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Magniber.yar#L1-L11"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "1875754bdf98c1886f31f6c6e29992a98180f74d8fa168ae391e2c660d760618"
 		score = 75
 		quality = 70
@@ -66812,8 +66812,8 @@ rule CAPE_Phantomstealer : FILE
 		date = "2026-07-28"
 		modified = "2026-07-28"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/PhantomStealer.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/PhantomStealer.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "2f6051f4653aca8f6db27b2ecf7156913f5d18542fdcd58ebc4b4bb41c1c3fb2"
 		score = 75
 		quality = 70
@@ -66837,8 +66837,8 @@ rule CAPE_Lokibot : FILE
 		date = "2022-02-01"
 		modified = "2022-02-01"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/LokiBot.yar#L1-L12"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/LokiBot.yar#L1-L12"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "a5b3d518371138740e913d2d6ce4fa22d3da5cea7e034c7d6b4b502e6bf44b06"
 		score = 75
 		quality = 70
@@ -66861,8 +66861,8 @@ rule CAPE_Mykings : FILE
 		date = "2025-10-24"
 		modified = "2025-10-26"
 		reference = "https://x.com/YungBinary/status/1981108948498333900"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/MyKings.yar#L1-L23"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/MyKings.yar#L1-L23"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "82647dd23c0247faa045893ec1cf111da2a30528a1b737b59ce1b71172a64473"
 		score = 75
 		quality = 70
@@ -66896,8 +66896,8 @@ rule CAPE_Gandcrab : FILE
 		date = "2019-10-30"
 		modified = "2022-06-09"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Gandcrab.yar#L1-L14"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Gandcrab.yar#L1-L14"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "354ed566dbafbe8e9531bb771d9846952eb8c0e70ee94c26d09368159ce4142c"
 		score = 75
 		quality = 70
@@ -66922,8 +66922,8 @@ rule CAPE_Kovter : FILE
 		date = "2019-10-30"
 		modified = "2019-10-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Kovter.yar#L1-L14"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Kovter.yar#L1-L14"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "888fccb8fbfbe6c05ec63bc5658b4743f8e10a96ef51b3868c2ff94afec76f2d"
 		score = 75
 		quality = 70
@@ -66948,8 +66948,8 @@ rule CAPE_Hermes : FILE
 		date = "2019-10-30"
 		modified = "2019-10-30"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Hermes.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Hermes.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "9bc974173f39a57e7adfbf8ae106a20d960557696b4c3ce16e9b4e47d3e9e95b"
 		score = 75
 		quality = 70
@@ -66973,8 +66973,8 @@ rule CAPE_Buerloader_1 : FILE
 		date = "2020-10-29"
 		modified = "2022-05-31"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/BuerLoader.yar#L1-L12"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/BuerLoader.yar#L1-L12"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "05c1f008f0a2bb8232867977fb23a5ae8312f10f0637c6265561052596319c29"
 		score = 75
 		quality = 70
@@ -66998,8 +66998,8 @@ rule CAPE_Doppelpaymer : FILE
 		date = "2019-11-15"
 		modified = "2022-06-27"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/DoppelPaymer.yar#L1-L13"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/DoppelPaymer.yar#L1-L13"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "73a2575671bafc31a70af3ce072d6f94ae172b12202baebba586a02524cb6f9d"
 		score = 75
 		quality = 70
@@ -67022,8 +67022,8 @@ rule CAPE_Fareit : FILE
 		date = "2019-10-30"
 		modified = "2022-06-09"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/Fareit.yar#L1-L11"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/Fareit.yar#L1-L11"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "ed35391ffc949219f380da3f22bc8397a7d5c742bd68e227c3becdebcab5cf83"
 		score = 75
 		quality = 70
@@ -67045,8 +67045,8 @@ rule CAPE_Qakbot5_1 : FILE
 		date = "2019-10-30"
 		modified = "2024-04-28"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/QakBot.yar#L1-L15"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/QakBot.yar#L1-L15"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		hash = "59559e97962e40a15adb2237c4d01cfead03623aff1725616caeaa5a8d273a35"
 		logic_hash = "cc23a92f45619d44af824128b743c259dd9dfa7cb5106932f3425f3dfd1dccdf"
 		score = 75
@@ -67072,8 +67072,8 @@ rule CAPE_Qakbot4_1 : FILE
 		date = "2019-10-30"
 		modified = "2024-04-28"
 		reference = "https://github.com/kevoreilly/CAPEv2"
-		source_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/data/yara/CAPE/QakBot.yar#L17-L35"
-		license_url = "https://github.com/kevoreilly/CAPEv2/blob/25ed598ca1fb53bc0a98cf3da394080a200f2050/LICENSE"
+		source_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/data/yara/CAPE/QakBot.yar#L17-L35"
+		license_url = "https://github.com/kevoreilly/CAPEv2/blob/c81fabdbac49774780578ae7dc09b9617e098296/LICENSE"
 		logic_hash = "b2870e33abffbb3ff49b7891b0f5c538ab48ee63da5553929d4e37dec921344f"
 		score = 75
 		quality = 70
@@ -67098,7 +67098,7 @@ rule CAPE_Qakbot4_1 : FILE
  * YARA Rule Set
  * Repository Name: BinaryAlert
  * Repository: https://github.com/airbnb/binaryalert/
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: a9c0f06affc35e1f8e45bb77f835b92350c68a0b
  * Number of Rules: 84
  * Skipped: 0 (age), 1 (quality), 0 (score), 0 (importance)
@@ -69666,7 +69666,7 @@ rule BINARYALERT_Hacktool_Macos_Keylogger_Skreweverything_Swift
  * YARA Rule Set
  * Repository Name: DeadBits
  * Repository: https://github.com/deadbits/yara-rules/
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: d002f7ecee23e09142a3ac3e79c84f71dda3f001
  * Number of Rules: 19
  * Skipped: 0 (age), 4 (quality), 0 (score), 0 (importance)
@@ -70106,7 +70106,7 @@ rule DEADBITS_Acbackdoor_ELF : LINUX MALWARE BACKDOOR
 		description = "No description has been set in the source file - DeadBits"
 		author = "Adam M. Swanda"
 		id = "82eb41bf-cd1d-5b00-973b-31a79c75cfc0"
-		date = "2019-11-01"
+		date = "2019-11-03"
 		modified = "2019-12-04"
 		reference = "https://www.intezer.com/blog-acbackdoor-analysis-of-a-new-multiplatform-backdoor/"
 		source_url = "https://github.com/deadbits/yara-rules//blob/d002f7ecee23e09142a3ac3e79c84f71dda3f001/rules/ACBackdoor_Linux.yara#L1-L41"
@@ -70499,7 +70499,7 @@ rule DEADBITS_Godlua_Linux : LINUXMALWARE FILE
  * YARA Rule Set
  * Repository Name: DelivrTo
  * Repository: https://github.com/delivr-to/detections
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: f85e1d0c477cbf4689d1cfe4a80049c465673b23
  * Number of Rules: 11
  * Skipped: 0 (age), 4 (quality), 0 (score), 0 (importance)
@@ -70771,8 +70771,8 @@ rule DELIVRTO_SUSP_Msg_CVE_2023_23397_Mar23 : CVE_2023_23397 FILE
  * YARA Rule Set
  * Repository Name: ESET
  * Repository: https://github.com/eset/malware-ioc
- * Retrieval Date: 2026-11-01
- * Git Commit: 59745502656e813f9f79fc8005243edbc04f9397
+ * Retrieval Date: 2026-11-03
+ * Git Commit: d17fa1d5043a1a6320fad96391b11c9fe73160dc
  * Number of Rules: 128
  * Skipped: 0 (age), 8 (quality), 1 (score), 0 (importance)
  *
@@ -70813,8 +70813,8 @@ rule ESET_Cw_Windows_Redline_Panel_Tab_Headers : FILE
 		date = "2022-10-11"
 		modified = "2024-11-12"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/redline/redline.yar#L32-L55"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/redline/redline.yar#L32-L55"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		hash = "a154dfaedc237c047f419eb6884dab1ef4e2a17d"
 		logic_hash = "3198aa9df2814a5f1d5568c6eed5f3189b2f72b3928cc97645f9bf57eebab9ac"
 		score = 75
@@ -70845,8 +70845,8 @@ rule ESET_Cw_Windows_Redline_Panel_Distinctive_Strings : FILE
 		date = "2022-10-11"
 		modified = "2024-11-12"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/redline/redline.yar#L57-L77"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/redline/redline.yar#L57-L77"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		hash = "a154dfaedc237c047f419eb6884dab1ef4e2a17d"
 		logic_hash = "7ff0239426c4c3b46a269fad71232295c038c09f276cdc3c7f1142c830260a6d"
 		score = 75
@@ -70873,8 +70873,8 @@ rule ESET_Cw_Windows_Redline_Panel_Prompts : FILE
 		date = "2022-10-11"
 		modified = "2024-11-12"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/redline/redline.yar#L79-L113"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/redline/redline.yar#L79-L113"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		hash = "a154dfaedc237c047f419eb6884dab1ef4e2a17d"
 		logic_hash = "0dfab05a9383ba13b3c610f1ab0c81e95804470002f27171ab39706f7723983a"
 		score = 75
@@ -70916,8 +70916,8 @@ rule ESET_Cw_Windows_Redline_Panel_Status_Message_Strings : FILE
 		date = "2022-10-11"
 		modified = "2024-11-12"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/redline/redline.yar#L115-L142"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/redline/redline.yar#L115-L142"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		hash = "a154dfaedc237c047f419eb6884dab1ef4e2a17d"
 		logic_hash = "c60fabc81967b083be72ff564af744ab60441de5d563ea6d88d873c0a99bfbdd"
 		score = 75
@@ -70952,8 +70952,8 @@ rule ESET_Cw_Windows_Redline_Panel_Commands : FILE
 		date = "2022-10-11"
 		modified = "2024-11-12"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/redline/redline.yar#L144-L172"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/redline/redline.yar#L144-L172"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		hash = "a154dfaedc237c047f419eb6884dab1ef4e2a17d"
 		logic_hash = "724516101264aa89259e847e4703d4eb993f330f82bd2df2433176b11d0c8974"
 		score = 75
@@ -70989,8 +70989,8 @@ rule ESET_Apt_Windows_Invisimole_Logs : FILE
 		date = "2021-05-17"
 		modified = "2021-05-17"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/invisimole/invisimole.yar#L54-L77"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/invisimole/invisimole.yar#L54-L77"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "d42423ccc768f1823c76d5cb2aec26434c796fc35bd4e2fbf435fcf7997d3ff0"
 		score = 75
 		quality = 80
@@ -71010,8 +71010,8 @@ rule ESET_Apt_Windows_Invisimole_SFX_Dropper : FILE
 		date = "2021-05-17"
 		modified = "2021-05-17"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/invisimole/invisimole.yar#L79-L95"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/invisimole/invisimole.yar#L79-L95"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "6ca248d42c1e889988e5931d80df071cb20e623fb0c4a208044cabe073f71ce4"
 		score = 75
 		quality = 80
@@ -71034,8 +71034,8 @@ rule ESET_Apt_Windows_Invisimole_CPL_Loader : FILE
 		date = "2021-05-17"
 		modified = "2021-05-17"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/invisimole/invisimole.yar#L97-L118"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/invisimole/invisimole.yar#L97-L118"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "cd5c19e14faa7fd3758b30193ccf2bed3692ad29d8216466523ca25d2abcfe88"
 		score = 75
 		quality = 80
@@ -71065,8 +71065,8 @@ rule ESET_Apt_Windows_Invisimole_Wrapper_DLL
 		date = "2021-05-17"
 		modified = "2021-05-17"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/invisimole/invisimole.yar#L120-L138"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/invisimole/invisimole.yar#L120-L138"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "156bc5bc7b0ed5c77a5a15e7799a3077d40150896476a60935cf21a9afe36856"
 		score = 75
 		quality = 80
@@ -71086,8 +71086,8 @@ private rule ESET_Invisimole_Blob_PRIVATE
 		date = "2021-05-17"
 		modified = "2021-05-17"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/invisimole/invisimole.yar#L34-L52"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/invisimole/invisimole.yar#L34-L52"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "8bddaf874da58fbe6362498f8979b511f39531fe2b98d4be8c099bdafb6d0067"
 		score = 75
 		quality = 80
@@ -71113,8 +71113,8 @@ rule ESET_Apt_Windows_Invisimole_DNS_Downloader : FILE
 		date = "2021-05-17"
 		modified = "2021-05-17"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/invisimole/invisimole.yar#L140-L170"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/invisimole/invisimole.yar#L140-L170"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "c94323bf1a0ca49cbccca1836f98cbc43e9f0edb62746bd0ab1a5461f6a11282"
 		score = 75
 		quality = 80
@@ -71150,8 +71150,8 @@ rule ESET_Apt_Windows_Invisimole_RC2CL_Backdoor : FILE
 		date = "2021-05-17"
 		modified = "2021-05-17"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/invisimole/invisimole.yar#L172-L213"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/invisimole/invisimole.yar#L172-L213"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "8e74eaf99f8052d54621fe5fd76ededdef5a4eed231b44fa8aa05bbc3cbd9ce1"
 		score = 75
 		quality = 78
@@ -71195,8 +71195,8 @@ rule ESET_Apt_Windows_Invisimole : FILE
 		date = "2021-05-17"
 		modified = "2021-05-17"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/invisimole/invisimole.yar#L215-L255"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/invisimole/invisimole.yar#L215-L255"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "867aadf1609def67ee781eb0adc1f6458b781c8b3dcc1105aef7983867c4d30e"
 		score = 75
 		quality = 80
@@ -71227,8 +71227,8 @@ rule ESET_Apt_Windows_Invisimole_C2 : FILE
 		date = "2021-05-17"
 		modified = "2021-05-17"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/invisimole/invisimole.yar#L257-L297"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/invisimole/invisimole.yar#L257-L297"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "94c3f2df8101a0f15998ba2f76612fa588eba6305bf565fcbb0bb6f2117caac8"
 		score = 75
 		quality = 78
@@ -71276,8 +71276,8 @@ rule ESET_Libkeyutils_With_Ctor
 		date = "2024-02-01"
 		modified = "2024-04-29"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/windigo/ebury.yar#L3-L54"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/windigo/ebury.yar#L3-L54"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		hash = "e7debd6e453192ad8376db5bab03ed0d87566591"
 		logic_hash = "c6172aebc67a05fb044b0450aafcc71c7d1fd2831985587d1a9ad53f59e14214"
 		score = 40
@@ -71301,8 +71301,8 @@ rule ESET_Ebury_V1_7_Crypto
 		date = "2023-08-01"
 		modified = "2024-04-29"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/windigo/ebury.yar#L56-L97"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/windigo/ebury.yar#L56-L97"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		hash = "e7debd6e453192ad8376db5bab03ed0d87566591"
 		logic_hash = "41908951069a472d7528f2f228f3681f008d16a0436e341d339909efc4933e66"
 		score = 75
@@ -71347,8 +71347,8 @@ rule ESET_Onimiki : LINUX_ONIMIKI
 		date = "2014-02-06"
 		modified = "2014-04-04"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/windigo/windigo-onimiki.yar#L32-L59"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/windigo/windigo-onimiki.yar#L32-L59"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "eac30f5c9a9606d1d0e14c55e0532c54976fbb0d2e4f5cd2d9f719b77e07161a"
 		score = 75
 		quality = 80
@@ -71381,8 +71381,8 @@ rule ESET_Mozi_Killswitch : FILE
 		date = "2023-09-29"
 		modified = "2023-10-31"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/mozi/mozi.yar#L32-L51"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/mozi/mozi.yar#L32-L51"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "90eaed2f7f5595b145b2678a46ef6179082192215369fa9235024b0ce1574a49"
 		score = 75
 		quality = 80
@@ -71408,8 +71408,8 @@ rule ESET_Dino
 		date = "2015-07-14"
 		modified = "2026-06-09"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/animalfarm/animalfarm.yar#L73-L96"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/animalfarm/animalfarm.yar#L73-L96"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "898e527eb8b05050135dee7cbe974100710a1a3a6a5cb8eb03563ee1c0aca01f"
 		score = 75
 		quality = 80
@@ -71439,8 +71439,8 @@ private rule ESET_Is_Elf_PRIVATE
 		date = "2015-05-25"
 		modified = "2016-11-01"
 		reference = "https://github.com/eset/malware-ioc"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/moose/linux-moose.yar#L32-L39"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/moose/linux-moose.yar#L32-L39"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "2a3c9a875852cd3ce86d43b9e4a6ba786ecbae1f18bba73a3bef5b7e8ba67a3b"
 		score = 75
 		quality = 80
@@ -71461,8 +71461,8 @@ rule ESET_Moose_1
 		date = "2015-04-21"
 		modified = "2016-11-01"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/moose/linux-moose.yar#L41-L76"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/moose/linux-moose.yar#L41-L76"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "b433fb47e86af9741c211b1c93dcf09fc920a4201a0c3a44c7251677b3691359"
 		score = 75
 		quality = 30
@@ -71504,8 +71504,8 @@ rule ESET_Moose_2
 		date = "2016-10-02"
 		modified = "2016-11-01"
 		reference = "http://www.welivesecurity.com/2016/11/02/linuxmoose-still-breathing/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/moose/linux-moose.yar#L78-L110"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/moose/linux-moose.yar#L78-L110"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "1e2fa5e46ddebb913c6dc23d0aa309a1a9bf3dbefeef3842ca6e05f1d42424ce"
 		score = 75
 		quality = 80
@@ -71546,8 +71546,8 @@ rule ESET_Beds_Plugin
 		date = "2017-07-17"
 		modified = "2017-07-20"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/stantinko/stantinko.yar#L34-L51"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/stantinko/stantinko.yar#L34-L51"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "024cb91288f133e4cdf5993ac0477de6de76d38fa06f7affa348c6a28a4600da"
 		score = 75
 		quality = 80
@@ -71568,8 +71568,8 @@ rule ESET_Beds_Dropper
 		date = "2017-07-17"
 		modified = "2017-07-20"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/stantinko/stantinko.yar#L53-L67"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/stantinko/stantinko.yar#L53-L67"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "4b5d121e182e3fddd766a7a1227c5de273995e9336156e7a6e8a17faad681bea"
 		score = 75
 		quality = 80
@@ -71589,8 +71589,8 @@ rule ESET_Facebook_Bot : FILE
 		date = "2017-07-17"
 		modified = "2017-07-20"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/stantinko/stantinko.yar#L69-L100"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/stantinko/stantinko.yar#L69-L100"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "8ea779f90fa6080398403e3e6f9d342360c35e93c756ed43cb699f090106504e"
 		score = 75
 		quality = 55
@@ -71627,8 +71627,8 @@ rule ESET_Pds_Plugins : FILE
 		date = "2017-07-17"
 		modified = "2017-07-20"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/stantinko/stantinko.yar#L102-L130"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/stantinko/stantinko.yar#L102-L130"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "26bbd380b72fb45206178639d67c8737b9984b140ba1048432949e159946c847"
 		score = 75
 		quality = 80
@@ -71663,8 +71663,8 @@ rule ESET_Stantinko_Pdb
 		date = "2017-07-17"
 		modified = "2017-07-20"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/stantinko/stantinko.yar#L132-L148"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/stantinko/stantinko.yar#L132-L148"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "902c0ee086ce1a8def831d2f30c868165198c6c304faac3a93116a524f8e2fbf"
 		score = 75
 		quality = 80
@@ -71687,8 +71687,8 @@ rule ESET_Stantinko_Droppers : FILE
 		date = "2017-07-17"
 		modified = "2017-07-20"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/stantinko/stantinko.yar#L150-L170"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/stantinko/stantinko.yar#L150-L170"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "c56fc85834a3e1bb1c14da37fb509c7de3009bf81d52800fe0093dc489f6deaa"
 		score = 75
 		quality = 80
@@ -71713,8 +71713,8 @@ rule ESET_Stantinko_D3D
 		date = "2017-07-17"
 		modified = "2017-07-20"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/stantinko/stantinko.yar#L172-L187"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/stantinko/stantinko.yar#L172-L187"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "4e8da3f11df15e4aa469db62961ae390c4c4df2a5335eec0bdab19b14cc8343d"
 		score = 75
 		quality = 80
@@ -71734,8 +71734,8 @@ rule ESET_Stantinko_Ihctrl32
 		date = "2017-07-17"
 		modified = "2017-07-20"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/stantinko/stantinko.yar#L189-L209"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/stantinko/stantinko.yar#L189-L209"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "1829e08fb2289f738d0e75ad9977169e9a94379da764b1766f23fa47e8bc2543"
 		score = 75
 		quality = 80
@@ -71762,8 +71762,8 @@ rule ESET_Stantinko_Wsaudio
 		date = "2017-07-17"
 		modified = "2017-07-20"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/stantinko/stantinko.yar#L211-L233"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/stantinko/stantinko.yar#L211-L233"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "45d92f1475f316ba50a9a4a3dd519d1186ed16c68bd2debe326736a1e3154562"
 		score = 75
 		quality = 80
@@ -71789,8 +71789,8 @@ rule ESET_Stantinko_Ghstore
 		date = "2017-07-17"
 		modified = "2017-07-20"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/stantinko/stantinko.yar#L235-L255"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/stantinko/stantinko.yar#L235-L255"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "e5628d6ffb2d3684264b3a88c4d7b5d2ce8983aa22badf5839ccb8ba2e3ef2d4"
 		score = 75
 		quality = 80
@@ -71817,8 +71817,8 @@ private rule ESET_Prikormkadropper_PRIVATE
 		date = "2016-05-18"
 		modified = "2019-08-28"
 		reference = "https://github.com/eset/malware-ioc"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/groundbait/prikormka.yar#L33-L51"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/groundbait/prikormka.yar#L33-L51"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "cf524cdf4ffeb5c9280c5c8e7fca524c41e1ce4f9bc46b1fc8cb8b50ea68ec39"
 		score = 75
 		quality = 28
@@ -71848,8 +71848,8 @@ private rule ESET_Prikormkamodule_PRIVATE
 		date = "2016-05-18"
 		modified = "2019-08-28"
 		reference = "https://github.com/eset/malware-ioc"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/groundbait/prikormka.yar#L53-L110"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/groundbait/prikormka.yar#L53-L110"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "d5d7f1a46cbf9ff545c0fa840228d19ee7d45307078b4ae0b5a2fdf1c94d2978"
 		score = 75
 		quality = 26
@@ -71904,8 +71904,8 @@ private rule ESET_Prikormkaearlyversion_PRIVATE
 		date = "2016-05-18"
 		modified = "2019-08-28"
 		reference = "https://github.com/eset/malware-ioc"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/groundbait/prikormka.yar#L112-L128"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/groundbait/prikormka.yar#L112-L128"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "681c7fb322953da162c10b76e453aa8ace6673720012383e3cd5528b59b42de3"
 		score = 75
 		quality = 28
@@ -71935,8 +71935,8 @@ rule ESET_Prikormka
 		date = "2016-05-10"
 		modified = "2019-08-28"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/groundbait/prikormka.yar#L130-L141"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/groundbait/prikormka.yar#L130-L141"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "f93d2954b1d511d836e7997d2a5309582c5fe9bb01dda0a8c58bbb9691366869"
 		score = 75
 		quality = 80
@@ -71957,8 +71957,8 @@ rule ESET_Richheaders_Lazarus_Nukesped_Iconicpayloads_3CX_Q12023
 		date = "2023-03-31"
 		modified = "2023-04-19"
 		reference = "https://github.com/eset/malware-ioc"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/nukesped_lazarus/rich_headers_IconicPayloads_3CX.yar#L6-L23"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/nukesped_lazarus/rich_headers_IconicPayloads_3CX.yar#L6-L23"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		hash = "3b88cda62cdd918b62ef5aa8c5a73a46f176d18b"
 		hash = "cad1120d91b812acafef7175f949dd1b09c6c21a"
 		hash = "5b03294b72c0caa5fb20e7817002c600645eb475"
@@ -71980,8 +71980,8 @@ rule ESET_Linux_Rakos
 		date = "2016-12-13"
 		modified = "2016-12-19"
 		reference = "http://www.welivesecurity.com/2016/12/20/new-linuxrakos-threat-devices-servers-ssh-scan/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/rakos/rakos.yar#L33-L53"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/rakos/rakos.yar#L33-L53"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "79a02ada56bf75c5f178b58822eb905977cace3483453ea8cf4dfc32f6b6c30d"
 		score = 75
 		quality = 80
@@ -72009,8 +72009,8 @@ private rule ESET_Not_Ms_PRIVATE
 		date = "2018-08-22"
 		modified = "2018-09-05"
 		reference = "https://github.com/eset/malware-ioc"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/turla/turla-outlook.yar#L34-L40"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/turla/turla-outlook.yar#L34-L40"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "71f492eaa80bee5e8cc5bec67b2a7fd6f5f71ee2594d9f531043747533c80443"
 		score = 75
 		quality = 80
@@ -72028,8 +72028,8 @@ rule ESET_Turla_Outlook_Gen
 		date = "2018-05-09"
 		modified = "2018-09-05"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/turla/turla-outlook.yar#L42-L74"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/turla/turla-outlook.yar#L42-L74"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "9b6e635d15a635b01221ac96d3310394a23a0239c163fa077303d7d36acbc74a"
 		score = 75
 		quality = 78
@@ -72071,8 +72071,8 @@ rule ESET_Turla_Outlook_Filenames
 		date = "2018-08-22"
 		modified = "2018-09-05"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/turla/turla-outlook.yar#L76-L91"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/turla/turla-outlook.yar#L76-L91"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "3be86c9325de6634c032321beed131fdf1e1952afcb43258fb202d0097610501"
 		score = 75
 		quality = 80
@@ -72097,8 +72097,8 @@ rule ESET_Turla_Outlook_Log
 		date = "2018-08-22"
 		modified = "2018-09-05"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/turla/turla-outlook.yar#L93-L107"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/turla/turla-outlook.yar#L93-L107"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "e7dc00c33a643c0940aaea2096d099192b27df3c81c518f1dc2b3d45a0a74312"
 		score = 75
 		quality = 80
@@ -72122,8 +72122,8 @@ rule ESET_Turla_Outlook_Exports
 		date = "2018-08-22"
 		modified = "2018-09-05"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/turla/turla-outlook.yar#L109-L125"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/turla/turla-outlook.yar#L109-L125"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "a961fdb43ea1e99b308f55b8f5e264b1f3fa817eaf463d512e2ad8b98a18ee99"
 		score = 75
 		quality = 80
@@ -72143,8 +72143,8 @@ rule ESET_Generic_Carbon : FILE
 		date = "2017-03-30"
 		modified = "2017-03-30"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/turla/carbon.yar#L33-L51"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/turla/carbon.yar#L33-L51"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "6481ccafb7c7c78bc52d01881cb96f3aa6209fdd35e090bdc9d5f5105b4e38ea"
 		score = 75
 		quality = 80
@@ -72170,8 +72170,8 @@ rule ESET_Carbon_Metadata
 		date = "2017-03-30"
 		modified = "2017-03-30"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/turla/carbon.yar#L53-L69"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/turla/carbon.yar#L53-L69"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "81b59e9566f3b3356acf12dadb80abdcbee28e0b1a9efead66fcb95bf6fc1aa5"
 		score = 75
 		quality = 80
@@ -72192,8 +72192,8 @@ rule ESET_Gazer_Certificate_Subject
 		date = "2017-08-30"
 		modified = "2017-08-29"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/turla/gazer.yar#L33-L46"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/turla/gazer.yar#L33-L46"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "6e870c9cdcee33769162de62ea143ff401af50b22a63d2f212c44d06f5771dec"
 		score = 75
 		quality = 80
@@ -72213,8 +72213,8 @@ rule ESET_Gazer_Certificate : FILE
 		date = "2017-08-30"
 		modified = "2017-08-29"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/turla/gazer.yar#L48-L65"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/turla/gazer.yar#L48-L65"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "eb3afbaefd23d4fc6ded494d3378dc910a0832b160e733ab79c590128dd74cea"
 		score = 75
 		quality = 80
@@ -72238,8 +72238,8 @@ rule ESET_Gazer_Logfile_Name : FILE
 		date = "2017-08-30"
 		modified = "2017-08-29"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/turla/gazer.yar#L67-L85"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/turla/gazer.yar#L67-L85"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "b50553f4b4b07f124e5bd390e7dc8ac6b60a8ef185f3bc227894f957d6483478"
 		score = 75
 		quality = 80
@@ -72264,8 +72264,8 @@ private rule ESET_Ssh_Client_PRIVATE : SSHDOOR
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L32-L47"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L32-L47"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "8682276b11b0ecd7dad6e40fd4a5bc0ebce992ba3fdf92c66585a07bd825981b"
 		score = 75
 		quality = 80
@@ -72289,8 +72289,8 @@ private rule ESET_Ssh_Daemon_PRIVATE : SSHDOOR
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L49-L64"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L49-L64"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "9b2c152940e414847c3cdfea83f530e8241b1ea3e3dbd232ef510a5faffacd05"
 		score = 75
 		quality = 80
@@ -72314,8 +72314,8 @@ private rule ESET_Ssh_Add_PRIVATE : SSHDOOR
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L66-L81"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L66-L81"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "33a210de41f755d443fbd810d4735ec5c1fc20648c04966ea98ec974423bb494"
 		score = 75
 		quality = 80
@@ -72339,8 +72339,8 @@ private rule ESET_Ssh_Askpass_PRIVATE : SSHDOOR
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L99-L114"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L99-L114"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "c6923d2c6659ba16ed6de3344ff5826a542934bfc16a4b16fa7bd1254226f17a"
 		score = 75
 		quality = 80
@@ -72364,8 +72364,8 @@ private rule ESET_Ssh_Keygen_PRIVATE : SSHDOOR
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L116-L131"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L116-L131"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "1c6b1f661c69be83e00f90d951e7dd22e801affef9a97b22b989bcb983607935"
 		score = 75
 		quality = 80
@@ -72389,8 +72389,8 @@ private rule ESET_Ssh_Keyscan_PRIVATE : SSHDOOR
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L133-L147"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L133-L147"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "4c2e11ccac272324b75a700338f70032454b0bdddbcf408222365dbfa0cadbf8"
 		score = 75
 		quality = 80
@@ -72413,8 +72413,8 @@ private rule ESET_Ssh_Binary_PRIVATE : SSHDOOR
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://github.com/eset/malware-ioc"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L149-L157"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L149-L157"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "87c93cdeca5edd6f53b35e1a70b13fac81b738522e069f2a64868e3ff08b837e"
 		score = 75
 		quality = 80
@@ -72433,8 +72433,8 @@ rule ESET_Abafar
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L184-L199"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L184-L199"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "b10fef494abc9d62b00d30e3aba5e273d8f0bc6e1f5dec2499e8fb779f854316"
 		score = 75
 		quality = 80
@@ -72458,8 +72458,8 @@ rule ESET_Akiva
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L201-L215"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L201-L215"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "c0072e476cfcd27d69a7cba3c9bc376ea4f54b50dcf1558349a3e8131da9a5a9"
 		score = 75
 		quality = 80
@@ -72482,8 +72482,8 @@ rule ESET_Alderaan
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L217-L231"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L217-L231"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "e26480fe59efaa843de3835c984e9fe80fa3a99241c2e547403890ce10654513"
 		score = 75
 		quality = 80
@@ -72506,8 +72506,8 @@ rule ESET_Ando
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L233-L251"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L233-L251"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "38117e75cbcbfbe6c755466eb2353996bed62591cc6d6fedac5fc252ca2315f6"
 		score = 75
 		quality = 80
@@ -72534,8 +72534,8 @@ rule ESET_Anoat
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L253-L267"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L253-L267"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "a110124cd57e9729b684232437c7de47f54d1c75fd7ad8ed6562d6bd3031448c"
 		score = 75
 		quality = 80
@@ -72558,8 +72558,8 @@ private rule ESET_Stack_String_PRIVATE
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L159-L182"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L159-L182"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "51e9e694833a0a811de9f4584ba7f99d872aa845fcca20861362c6920b5e7507"
 		score = 75
 		quality = 78
@@ -72586,8 +72586,8 @@ rule ESET_Atollon
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L269-L286"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L269-L286"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "fead727f264b50e2e30cf4875d4440f9a08f7eb4ba842478497ed0dcd6d34175"
 		score = 75
 		quality = 80
@@ -72613,8 +72613,8 @@ rule ESET_Batuu
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L288-L303"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L288-L303"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "ba8bb0142c6dbb6b4c286637381830e3e1c9394b496be49c2df836c78acc347e"
 		score = 75
 		quality = 80
@@ -72638,8 +72638,8 @@ rule ESET_Bespin
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L305-L321"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L305-L321"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "eaef61f2e9547e23d41261cf32b98fd46dd6e932b5bc10a9bb8d7f56759f5bcc"
 		score = 75
 		quality = 80
@@ -72664,8 +72664,8 @@ rule ESET_Bonadan
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L323-L342"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L323-L342"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "3cec10716048d39ca47922153a7b0a16d69d658edc9a74406c3aa5e50c7933ec"
 		score = 75
 		quality = 80
@@ -72693,8 +72693,8 @@ rule ESET_Borleias
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L344-L358"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L344-L358"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "18c0e12f77ee6cc40f686d2bc031b56ad9275c2190ea32199e9d27dbe8db5bfb"
 		score = 75
 		quality = 80
@@ -72717,8 +72717,8 @@ rule ESET_Chandrila
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L360-L375"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L360-L375"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "d24bdd2215f22a0c7232d772b6314c98eaa733a05512bba6398f67bcfce2b544"
 		score = 75
 		quality = 80
@@ -72742,8 +72742,8 @@ rule ESET_Coruscant
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L377-L393"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L377-L393"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "17ef9b616fe3ac0bd36efd7be8b29c0ce1f7a904e83075fd631ac925a41233fd"
 		score = 75
 		quality = 80
@@ -72768,8 +72768,8 @@ rule ESET_Crait
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L395-L411"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L395-L411"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "0c51286cd585aac0b5990e14e34ea7908d85486f61fc838ac12d19ebf5594be4"
 		score = 75
 		quality = 80
@@ -72794,8 +72794,8 @@ rule ESET_Endor
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L413-L428"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L413-L428"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "8f51a54a20240fa0b88c8ded4d711668e71c644655cdf51e5e02e2b92cd6ca36"
 		score = 75
 		quality = 80
@@ -72819,8 +72819,8 @@ rule ESET_Jakuu
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L430-L450"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L430-L450"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "b14139e53a52b7d25a2204676c4809a1f27026da3fc3895db40774a3ce9c03a0"
 		score = 75
 		quality = 55
@@ -72848,8 +72848,8 @@ rule ESET_Kamino
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L452-L477"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L452-L477"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "9614bc9d7e99cbea2e36326e62895950930cdec84ba48244f9243cb9ec517219"
 		score = 75
 		quality = 80
@@ -72883,8 +72883,8 @@ rule ESET_Kessel
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L479-L502"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L479-L502"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "a0f1600a27cc8a84f1d466df32e51bc13a0e6a15431785160b62d536961aad0a"
 		score = 75
 		quality = 80
@@ -72916,8 +72916,8 @@ rule ESET_Mimban
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L504-L523"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L504-L523"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "dffea2ee8481f026786403d06cfe214b703a9b552ab7cceb12f488c0d4ae8d14"
 		score = 75
 		quality = 55
@@ -72945,8 +72945,8 @@ rule ESET_Ondaron
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L525-L540"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L525-L540"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "d258c4b13cee572343bd875734cfa105534a92fd80db00ead995cc0eb3d7126e"
 		score = 75
 		quality = 80
@@ -72970,8 +72970,8 @@ rule ESET_Polis_Massa
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L542-L556"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L542-L556"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "fd0365a7c3a8a9d9b2d82146d473a9e450722b6b46615ccbfad71385d73e9477"
 		score = 75
 		quality = 55
@@ -72994,8 +72994,8 @@ rule ESET_Quarren
 		date = "2018-12-05"
 		modified = "2018-12-05"
 		reference = "https://www.welivesecurity.com/wp-content/uploads/2018/12/ESET-The_Dark_Side_of_the_ForSSHe.pdf"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sshdoor/sshdoor.yar#L558-L572"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sshdoor/sshdoor.yar#L558-L572"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "061a215c9c35e427bc7f053a8b1d8b45352ea6c26280b612ef56f03f678d297e"
 		score = 75
 		quality = 80
@@ -73019,8 +73019,8 @@ rule ESET_Sparklinggoblin_Chacha20Loader_Richheader
 		date = "2021-03-30"
 		modified = "2021-08-26"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sparklinggoblin/SparklingGoblin.yar#L33-L57"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sparklinggoblin/SparklingGoblin.yar#L33-L57"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		hash = "09ffe37a54bc4ebebd8d56098e4c76232f35d821"
 		hash = "29b147b76bb0d9e09f7297487cb972e6a2905586"
 		hash = "33f2c3de2457b758fc5824a2b253ad7c7c2e9e37"
@@ -73046,8 +73046,8 @@ rule ESET_Sparklinggoblin_Chacha20 : FILE
 		date = "2021-05-20"
 		modified = "2021-08-26"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sparklinggoblin/SparklingGoblin.yar#L59-L368"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sparklinggoblin/SparklingGoblin.yar#L59-L368"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		hash = "2edbea43f5c40c867e5b6bbd93cc972525df598b"
 		hash = "b6d245d3d49b06645c0578804064ce0c072cbe0f"
 		hash = "8be6d5f040d0085c62b1459afc627707b0de89cf"
@@ -73357,8 +73357,8 @@ rule ESET_Sparklinggoblin_Etweventwrite
 		date = "2021-05-20"
 		modified = "2021-08-26"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sparklinggoblin/SparklingGoblin.yar#L370-L463"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sparklinggoblin/SparklingGoblin.yar#L370-L463"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		hash = "2edbea43f5c40c867e5b6bbd93cc972525df598b"
 		hash = "b6d245d3d49b06645c0578804064ce0c072cbe0f"
 		hash = "8be6d5f040d0085c62b1459afc627707b0de89cf"
@@ -73453,8 +73453,8 @@ rule ESET_Sparklinggoblin_Mutex
 		date = "2021-05-20"
 		modified = "2021-08-26"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/sparklinggoblin/SparklingGoblin.yar#L465-L489"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/sparklinggoblin/SparklingGoblin.yar#L465-L489"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		hash = "2edbea43f5c40c867e5b6bbd93cc972525df598b"
 		hash = "b6d245d3d49b06645c0578804064ce0c072cbe0f"
 		hash = "8be6d5f040d0085c62b1459afc627707b0de89cf"
@@ -73483,8 +73483,8 @@ rule ESET_Apt_Windows_TA410_Tendyron_Dropper
 		date = "2020-12-09"
 		modified = "2022-04-27"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/ta410/ta410.yar#L34-L53"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/ta410/ta410.yar#L34-L53"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "45f7300a4b85624ad3fda5c73a24f53f53cb7990def4d84e04dcd8e5747f4f2e"
 		score = 75
 		quality = 80
@@ -73512,8 +73512,8 @@ rule ESET_Apt_Windows_TA410_Tendyron_Installer
 		date = "2020-12-09"
 		modified = "2022-04-27"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/ta410/ta410.yar#L55-L73"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/ta410/ta410.yar#L55-L73"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "9c3afb924747614f27c31cf2c3d98f4932a9d11597a3ac94263bf93be02801da"
 		score = 75
 		quality = 80
@@ -73540,8 +73540,8 @@ rule ESET_Apt_Windows_TA410_Tendyron_Downloader
 		date = "2020-12-09"
 		modified = "2022-04-27"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/ta410/ta410.yar#L75-L107"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/ta410/ta410.yar#L75-L107"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "16030a78ae9af8783f5913644294ceff861c8264ead8ca99435032be6d7949ef"
 		score = 75
 		quality = 80
@@ -73573,8 +73573,8 @@ rule ESET_Apt_Windows_TA410_X4_Strings
 		date = "2020-10-09"
 		modified = "2022-04-27"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/ta410/ta410.yar#L109-L125"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/ta410/ta410.yar#L109-L125"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "d4b2321a6d0eb0ca8d7c47596af2a45c22b3aef15d1832d64d6588a62cab312a"
 		score = 75
 		quality = 74
@@ -73599,8 +73599,8 @@ rule ESET_Apt_Windows_TA410_X4_Hash_Values : FILE
 		date = "2020-10-09"
 		modified = "2022-04-27"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/ta410/ta410.yar#L127-L149"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/ta410/ta410.yar#L127-L149"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "bcf3891ff888ca99af9aa0e239b29241ae819022607fb829c5731267add308ea"
 		score = 75
 		quality = 80
@@ -73630,8 +73630,8 @@ rule ESET_Apt_Windows_TA410_X4_Hash_Fct : FILE
 		date = "2020-10-09"
 		modified = "2022-04-27"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/ta410/ta410.yar#L151-L187"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/ta410/ta410.yar#L151-L187"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "3b2d44cb7685a99e9aeb08f886f6876d43ee99d1e52e40705c3fa97ce3bfa9a0"
 		score = 75
 		quality = 80
@@ -73663,8 +73663,8 @@ rule ESET_Apt_Windows_TA410_Lookback_Decryption : FILE
 		date = "2021-10-12"
 		modified = "2022-04-27"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/ta410/ta410.yar#L189-L254"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/ta410/ta410.yar#L189-L254"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "016dca6be654fcd193acc481e6a998efbb77e7ebd09b26614422be1136dd02c0"
 		score = 75
 		quality = 80
@@ -73738,8 +73738,8 @@ rule ESET_Apt_Windows_TA410_Lookback_Loader : FILE
 		date = "2021-10-12"
 		modified = "2022-04-27"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/ta410/ta410.yar#L256-L309"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/ta410/ta410.yar#L256-L309"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "98390dd664227ad747e5572771d12e7ebd2475d26db27e85508347ac6f44f3bf"
 		score = 75
 		quality = 80
@@ -73802,8 +73802,8 @@ rule ESET_Apt_Windows_TA410_Lookback_Strings : FILE
 		date = "2021-10-12"
 		modified = "2022-04-27"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/ta410/ta410.yar#L311-L331"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/ta410/ta410.yar#L311-L331"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "d17ed604e3691c20fe489f95197b7b802ec951ed13d538fa6643449485b326b2"
 		score = 75
 		quality = 80
@@ -73831,8 +73831,8 @@ rule ESET_Apt_Windows_TA410_Lookback_HTTP : FILE
 		date = "2021-10-12"
 		modified = "2022-04-27"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/ta410/ta410.yar#L333-L349"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/ta410/ta410.yar#L333-L349"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "0e777f56136cd11d62abdf4f120410d5fe9cd522cfc06afbf085414a96279bf7"
 		score = 75
 		quality = 80
@@ -73856,8 +73856,8 @@ rule ESET_Apt_Windows_TA410_Lookback_Magic : FILE
 		date = "2021-10-12"
 		modified = "2022-04-27"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/ta410/ta410.yar#L351-L377"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/ta410/ta410.yar#L351-L377"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "442a08a77fd2db03e507c0d5a32b17ab4e5936a209f7af23ef3c33a4b9f3d0d5"
 		score = 75
 		quality = 80
@@ -73891,8 +73891,8 @@ rule ESET_Apt_Windows_TA410_Flowcloud_Loader_Strings : FILE
 		date = "2021-10-12"
 		modified = "2022-04-27"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/ta410/ta410.yar#L379-L415"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/ta410/ta410.yar#L379-L415"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "3c90723e009ffe2603910566ac52a324256676ee3ff128d94427681010e10e8b"
 		score = 75
 		quality = 78
@@ -73936,8 +73936,8 @@ rule ESET_Apt_Windows_TA410_Flowcloud_Header_Decryption : FILE
 		date = "2022-04-27"
 		modified = "2022-04-27"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/ta410/ta410.yar#L417-L496"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/ta410/ta410.yar#L417-L496"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "74b6c42bf2de159b2b0a15637e6bd94069367e3000c887714d6e3b50aa3646be"
 		score = 75
 		quality = 80
@@ -73992,8 +73992,8 @@ rule ESET_Apt_Windows_TA410_Flowcloud_Dll_Hijacking_Strings : FILE
 		date = "2021-10-12"
 		modified = "2022-04-27"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/ta410/ta410.yar#L498-L517"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/ta410/ta410.yar#L498-L517"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "e8082d4216364a12ba395f772b5caed94b3068d26a2b3a97ef711d61a82f65b3"
 		score = 75
 		quality = 80
@@ -74021,8 +74021,8 @@ rule ESET_Apt_Windows_TA410_Flowcloud_Malicious_Dll_Antianalysis : FILE
 		date = "2021-10-12"
 		modified = "2022-04-27"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/ta410/ta410.yar#L519-L552"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/ta410/ta410.yar#L519-L552"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "8f14352118d32a43c17f70bd753acc48bd314965f10ab97818e8a434bbda96d9"
 		score = 75
 		quality = 80
@@ -74055,8 +74055,8 @@ rule ESET_Apt_Windows_TA410_Flowcloud_Pdb : FILE
 		date = "2021-10-12"
 		modified = "2022-04-27"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/ta410/ta410.yar#L554-L567"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/ta410/ta410.yar#L554-L567"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "ff95ab0f8e68efe612a6e0d70cebd8bf815d6b5e3877c098ac0761382dc310d6"
 		score = 75
 		quality = 80
@@ -74076,8 +74076,8 @@ rule ESET_Apt_Windows_TA410_Flowcloud_Shellcode_Decryption : FILE
 		date = "2021-10-12"
 		modified = "2022-04-27"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/ta410/ta410.yar#L569-L615"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/ta410/ta410.yar#L569-L615"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "939ffe6a41c957aa5d6c012484b2deab49a5e71a4b7e203a41c180f872803921"
 		score = 75
 		quality = 80
@@ -74115,8 +74115,8 @@ rule ESET_Apt_Windows_TA410_Flowcloud_Fcclient_Strings : FILE
 		date = "2021-10-12"
 		modified = "2022-04-27"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/ta410/ta410.yar#L617-L639"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/ta410/ta410.yar#L617-L639"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "c05b7031a5aec1bcf29eca06c010c402edeb24a093a2043dbc21781dff22c7fe"
 		score = 75
 		quality = 80
@@ -74146,8 +74146,8 @@ rule ESET_Apt_Windows_TA410_Flowcloud_Fcclientdll_Strings : FILE
 		date = "2021-10-12"
 		modified = "2022-04-27"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/ta410/ta410.yar#L641-L669"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/ta410/ta410.yar#L641-L669"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "3a93f58cf14b57a96157077ec14aa6fb181e3da80f4ba46c0379a58b67c08a0e"
 		score = 75
 		quality = 80
@@ -74183,8 +74183,8 @@ rule ESET_Apt_Windows_TA410_Rootkit_Strings : FILE
 		date = "2021-10-12"
 		modified = "2022-04-27"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/ta410/ta410.yar#L671-L697"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/ta410/ta410.yar#L671-L697"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "1d3ad63508c5e4bca32b9a44b738cb4a7384ccfa5704ce329260adb342ea4e60"
 		score = 75
 		quality = 80
@@ -74219,8 +74219,8 @@ rule ESET_Apt_Windows_TA410_Flowcloud_V5_Resources : FILE
 		date = "2021-10-12"
 		modified = "2022-04-27"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/ta410/ta410.yar#L699-L720"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/ta410/ta410.yar#L699-L720"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "58f75dda53c6d4b3d88f464c452d855ac6dc88add5f4fba2641f52e7a1ae00ed"
 		score = 75
 		quality = 80
@@ -74241,8 +74241,8 @@ rule ESET_Apt_Windows_TA410_Flowcloud_V4_Resources : FILE
 		date = "2021-10-12"
 		modified = "2022-04-27"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/ta410/ta410.yar#L722-L741"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/ta410/ta410.yar#L722-L741"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "7b475cfddb5f995f7e8e3293b8e6ae59a9e36143998bc444499b5dce467f8e9d"
 		score = 75
 		quality = 80
@@ -74263,8 +74263,8 @@ private rule ESET_IIS_Native_Module_PRIVATE : FILE
 		date = "2021-08-04"
 		modified = "2021-08-04"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/badiis/badiis.yar#L34-L92"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/badiis/badiis.yar#L34-L92"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "5a388dc3253df606e2648d1f9c018e6dde373bbddce66dba69b7aecdd95bac18"
 		score = 75
 		quality = 55
@@ -74330,8 +74330,8 @@ rule ESET_IIS_Group02
 		date = "2021-08-04"
 		modified = "2021-08-04"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/badiis/badiis.yar#L134-L155"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/badiis/badiis.yar#L134-L155"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "39e75bfb7768d2a706853c2e2bedd4ccdea4e437c8f1b837e2748163f270c151"
 		score = 75
 		quality = 76
@@ -74359,8 +74359,8 @@ rule ESET_IIS_Group03
 		date = "2021-08-04"
 		modified = "2021-08-04"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/badiis/badiis.yar#L157-L176"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/badiis/badiis.yar#L157-L176"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "8052d8be5cc67e9deb993101411fe534f7e099c1cae04566e61f8e3a2ebb40bd"
 		score = 75
 		quality = 80
@@ -74386,8 +74386,8 @@ rule ESET_IIS_Group04_Rgdoor
 		date = "2021-08-04"
 		modified = "2021-08-04"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/badiis/badiis.yar#L178-L199"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/badiis/badiis.yar#L178-L199"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "9a8253932037cdc88a9ecba8b938a974c230683e7416e70336659fbfd23d6080"
 		score = 75
 		quality = 80
@@ -74414,8 +74414,8 @@ rule ESET_IIS_Group05_Iistealer
 		date = "2021-08-04"
 		modified = "2021-08-04"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/badiis/badiis.yar#L201-L232"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/badiis/badiis.yar#L201-L232"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "d92bb7ae81b35a13069e887147ef1795440cc59a39c5795d709299e7938303b3"
 		score = 75
 		quality = 80
@@ -74449,8 +74449,8 @@ rule ESET_IIS_Group06_ISN
 		date = "2021-08-04"
 		modified = "2021-08-04"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/badiis/badiis.yar#L234-L259"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/badiis/badiis.yar#L234-L259"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "666b8dc2ca3fbfd36459876a6ac89fe0e30de282a6c0c123f2d5f9a0a77e5eab"
 		score = 75
 		quality = 80
@@ -74481,8 +74481,8 @@ rule ESET_IIS_Group07_Iispy
 		date = "2021-08-04"
 		modified = "2021-08-04"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/badiis/badiis.yar#L261-L296"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/badiis/badiis.yar#L261-L296"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "27327dc1f0e5d30804a81ec98a1746a056b131ae28dba780612b2660c38dfa15"
 		score = 75
 		quality = 80
@@ -74519,8 +74519,8 @@ rule ESET_IIS_Group08
 		date = "2021-08-04"
 		modified = "2021-08-04"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/badiis/badiis.yar#L298-L337"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/badiis/badiis.yar#L298-L337"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "ac29742d4dd3f695dde988643ff0edb6909743ed1bd9c702ec018d6aafaef14f"
 		score = 75
 		quality = 53
@@ -74565,8 +74565,8 @@ rule ESET_IIS_Group09
 		date = "2021-08-04"
 		modified = "2021-08-04"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/badiis/badiis.yar#L339-L387"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/badiis/badiis.yar#L339-L387"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "4668b1aa1f701abe6407f0c82c0277e9d8a129c7b751082066619104ef863108"
 		score = 75
 		quality = 76
@@ -74619,8 +74619,8 @@ rule ESET_IIS_Group10
 		date = "2021-08-04"
 		modified = "2021-08-04"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/badiis/badiis.yar#L389-L423"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/badiis/badiis.yar#L389-L423"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "d175aac990d8bf2dc65c0b04e50b6c6dd9935368929051779e5f94707e59f0e4"
 		score = 75
 		quality = 80
@@ -74660,8 +74660,8 @@ rule ESET_IIS_Group11
 		date = "2021-08-04"
 		modified = "2021-08-04"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/badiis/badiis.yar#L425-L455"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/badiis/badiis.yar#L425-L455"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "4ebbd212f30697bab9245e68da61498f8be0775f19fc8c0441b526c3cf9f9434"
 		score = 75
 		quality = 80
@@ -74690,8 +74690,8 @@ rule ESET_IIS_Group12
 		date = "2021-08-04"
 		modified = "2021-08-04"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/badiis/badiis.yar#L457-L495"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/badiis/badiis.yar#L457-L495"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "ed5ff75d87c6987f24cf33b74e88e26561102d89e326acfa73b8014933da13b4"
 		score = 75
 		quality = 78
@@ -74734,8 +74734,8 @@ rule ESET_IIS_Group13_Iiserpent
 		date = "2021-08-04"
 		modified = "2021-08-04"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/badiis/badiis.yar#L497-L523"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/badiis/badiis.yar#L497-L523"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "665a2707021d42b2fb75b4463649cf5b05708f2b4b3c337b9995d696d7921a26"
 		score = 75
 		quality = 80
@@ -74768,8 +74768,8 @@ rule ESET_IIS_Group14
 		date = "2021-08-04"
 		modified = "2021-08-04"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/badiis/badiis.yar#L525-L552"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/badiis/badiis.yar#L525-L552"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "74885906731486ab6e85c0d1c313c2e85717d4d4e48cd2c9898762e984444397"
 		score = 75
 		quality = 80
@@ -74801,8 +74801,8 @@ rule ESET_Keydnap_Downloader
 		date = "2016-07-06"
 		modified = "2016-07-06"
 		reference = "http://www.welivesecurity.com/2016/07/06/new-osxkeydnap-malware-is-hungry-for-credentials"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/keydnap/keydnap.yar#L33-L49"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/keydnap/keydnap.yar#L33-L49"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "71c8885193a92fa9c71055c37e629a54d50070cf6820b9216a824ecc4db2ce3c"
 		score = 75
 		quality = 80
@@ -74826,8 +74826,8 @@ rule ESET_Keydnap_Backdoor_Packer
 		date = "2016-07-06"
 		modified = "2016-07-06"
 		reference = "http://www.welivesecurity.com/2016/07/06/new-osxkeydnap-malware-is-hungry-for-credentials"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/keydnap/keydnap.yar#L51-L67"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/keydnap/keydnap.yar#L51-L67"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "b1740bf38376be81d3b42306c2ce81f578c0b5c9db804f063836bf98f57ed147"
 		score = 75
 		quality = 80
@@ -74851,8 +74851,8 @@ rule ESET_Keydnap_Backdoor
 		date = "2016-07-06"
 		modified = "2016-07-06"
 		reference = "http://www.welivesecurity.com/2016/07/06/new-osxkeydnap-malware-is-hungry-for-credentials"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/keydnap/keydnap.yar#L69-L86"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/keydnap/keydnap.yar#L69-L86"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "fa209577a562ef9088d3ad3df3fbc0edda96f09d19177842f0ddea42c658f530"
 		score = 75
 		quality = 80
@@ -74878,8 +74878,8 @@ rule ESET_Kobalos
 		date = "2020-11-02"
 		modified = "2021-02-01"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/kobalos/kobalos.yar#L32-L56"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/kobalos/kobalos.yar#L32-L56"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "9161d22f9fbb1700dc3121e32104240e34512cb280aaf950aec61513f89061ef"
 		score = 75
 		quality = 80
@@ -74910,8 +74910,8 @@ rule ESET_Kobalos_Ssh_Credential_Stealer
 		date = "2020-11-02"
 		modified = "2021-02-01"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/kobalos/kobalos.yar#L58-L73"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/kobalos/kobalos.yar#L58-L73"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "be238f5c2cc976a5638584a8c0fc580f2076735aadfe374e8d4162ba723bce10"
 		score = 75
 		quality = 80
@@ -74934,8 +74934,8 @@ rule ESET_Mumblehard_Packer
 		date = "2015-04-07"
 		modified = "2015-05-01"
 		reference = "http://www.welivesecurity.com"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/mumblehard/mumblehard_packer.yar#L32-L47"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/mumblehard/mumblehard_packer.yar#L32-L47"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "a04f50a7054c4ce8ad9be4e7f3373ad4f36eb9443e223601974e852c25603f5f"
 		score = 75
 		quality = 80
@@ -74959,8 +74959,8 @@ private rule ESET_Potaodecoy_PRIVATE
 		date = "2015-07-30"
 		modified = "2015-07-30"
 		reference = "https://github.com/eset/malware-ioc"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/potao/PotaoNew.yara#L32-L45"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/potao/PotaoNew.yara#L32-L45"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "93cbe1d1545d1fb85b3218b68619e67a1dda80d5888d2685a04915b861dfce01"
 		score = 75
 		quality = 28
@@ -74987,8 +74987,8 @@ private rule ESET_Potaodll_PRIVATE
 		date = "2015-07-30"
 		modified = "2015-07-30"
 		reference = "https://github.com/eset/malware-ioc"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/potao/PotaoNew.yara#L46-L70"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/potao/PotaoNew.yara#L46-L70"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "1d1154eb10cc70b3252e3ca4a85789e8605f2f3b7044f03ec960fd56ab81886a"
 		score = 75
 		quality = 28
@@ -75025,8 +75025,8 @@ private rule ESET_Potaousb_PRIVATE
 		date = "2015-07-30"
 		modified = "2015-07-30"
 		reference = "https://github.com/eset/malware-ioc"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/potao/PotaoNew.yara#L71-L80"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/potao/PotaoNew.yara#L71-L80"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "8f72afbf3b123ea3914b3eade267bd21f7435fbf9fbde4049ca2600513bb31d9"
 		score = 75
 		quality = 28
@@ -75049,8 +75049,8 @@ private rule ESET_Potaosecondstage_PRIVATE
 		date = "2015-07-30"
 		modified = "2015-07-30"
 		reference = "https://github.com/eset/malware-ioc"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/potao/PotaoNew.yara#L81-L95"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/potao/PotaoNew.yara#L81-L95"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "55f9fc2da09aa9c2e76725985c836f7b8ba5e0b69a9327fb911e8265b340b88c"
 		score = 75
 		quality = 28
@@ -75076,8 +75076,8 @@ rule ESET_Potao
 		date = "2015-07-29"
 		modified = "2015-07-30"
 		reference = "https://github.com/eset/malware-ioc/"
-		source_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/potao/PotaoNew.yara#L96-L108"
-		license_url = "https://github.com/eset/malware-ioc/blob/59745502656e813f9f79fc8005243edbc04f9397/LICENSE"
+		source_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/potao/PotaoNew.yara#L96-L108"
+		license_url = "https://github.com/eset/malware-ioc/blob/d17fa1d5043a1a6320fad96391b11c9fe73160dc/LICENSE"
 		logic_hash = "5969f1f02980dab567c7b240f1a000d83c492c0d4aac12dbf68c50913bb653a5"
 		score = 75
 		quality = 80
@@ -75092,7 +75092,7 @@ rule ESET_Potao
  * YARA Rule Set
  * Repository Name: FireEye-RT
  * Repository: https://github.com/mandiant/red_team_tool_countermeasures/
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: 3561b71724dbfa3e2bb78106aaa2d7f8b892c43b
  * Number of Rules: 166
  * Skipped: 0 (age), 5 (quality), 0 (score), 0 (importance)
@@ -79827,7 +79827,7 @@ rule FIREEYE_RT_APT_Hacktool_MSIL_SHARPSACK_1 : FILE
  * YARA Rule Set
  * Repository Name: GCTI
  * Repository: https://github.com/chronicle/GCTI
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: 1c5fd42b1895098527fde00c2d9757edf6b303bb
  * Number of Rules: 90
  * Skipped: 0 (age), 1 (quality), 0 (score), 0 (importance)
@@ -83044,10 +83044,10 @@ rule GCTI_Sliver_Implant_32Bit
  * YARA Rule Set
  * Repository Name: Malpedia
  * Repository: https://github.com/malpedia/signator-rules/
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: c252249801c8d67c4ce51ce86a67905700837c4c
- * Number of Rules: 1671
- * Skipped: 0 (age), 17 (quality), 0 (score), 0 (importance)
+ * Number of Rules: 1670
+ * Skipped: 0 (age), 18 (quality), 0 (score), 0 (importance)
  *
  *
  * LICENSE
@@ -126515,45 +126515,6 @@ rule MALPEDIA_Win_Prilex_Auto : FILE
 	condition:
 		7 of them and filesize < 450560
 }
-rule MALPEDIA_Win_Triback_Loader_Auto : FILE
-{
-	meta:
-		description = "autogenerated rule brought to you by yara-signator"
-		author = "Felix Bilstein - yara-signator at cocacoding dot com"
-		id = "14b3c401-5974-5144-ac37-56b06a10f8fb"
-		date = "2026-09-17"
-		modified = "2026-09-28"
-		reference = "https://malpedia.caad.fkie.fraunhofer.de/details/win.triback_loader"
-		source_url = "https://github.com/malpedia/signator-rules//blob/c252249801c8d67c4ce51ce86a67905700837c4c/rules/win.triback_loader_auto.yar#L1-L134"
-		license_url = "N/A"
-		logic_hash = "1a899562b231bf12c99115074c66d40554087023d0a7574fa304d16aa7f5ab66"
-		score = 75
-		quality = 75
-		tags = "FILE"
-		version = "1"
-		tool = "yara-signator v0.6.0"
-		signator_config = "callsandjumps;datarefs;binvalue"
-		malpedia_rule_date = "20260916"
-		malpedia_hash = "53a643781c18e08f4a50949af60172d837a0b6f6"
-		malpedia_version = "20260917"
-		malpedia_license = "CC BY-SA 4.0"
-		malpedia_sharing = "TLP:WHITE"
-
-	strings:
-		$sequence_0 = { 7416 83f902 0f85c0010000 498bce e8???????? e9???????? 498bce }
-		$sequence_1 = { 8985e0040000 428d0407 41ffc0 8b1482 8bc3 480fafd6 4803d0 }
-		$sequence_2 = { 486385ec020000 488d0dfe50ffff 8b8481a8b40000 4803c1 ffe0 8b85ec020000 2d03400000 }
-		$sequence_3 = { 488d1dad050500 483bcb 740c e8???????? 48891d???????? b001 4883c420 }
-		$sequence_4 = { 740c 0fb703 4883c302 6685c0 75df 488d442440 88942433020000 }
-		$sequence_5 = { 4885d2 0f8578ffffff 4883feff 7519 6645894c7bfe 8d4250 488b5c2430 }
-		$sequence_6 = { eb04 44896320 488b4310 8a08 48ffc0 48894310 884b39 }
-		$sequence_7 = { b8cdcccccc 41f7e0 c1ea03 8d0492 03c0 442bc0 0f84d0000000 }
-		$sequence_8 = { 898584000000 488d0df6490800 e8???????? 488b8d68020000 488b09 48898df8090000 488bd0 }
-		$sequence_9 = { 4533c9 4489ada0040000 4c8d85a4040000 45892e bacc010000 e8???????? 32c0 }
-
-	condition:
-		7 of them and filesize < 1483776
-}
 rule MALPEDIA_Win_Expiro_Auto : FILE
 {
 	meta:
@@ -152084,7 +152045,7 @@ rule MALPEDIA_Win_Unidentified_082_Auto : FILE
  * YARA Rule Set
  * Repository Name: Trellix ARC
  * Repository: https://github.com/advanced-threat-research/Yara-Rules/
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: 1919562a59f190bda60c982424f6a24c542ee3e0
  * Number of Rules: 163
  * Skipped: 0 (age), 4 (quality), 0 (score), 0 (importance)
@@ -157988,7 +157949,7 @@ rule TRELLIX_ARC_Havex_Backdoor_Pdb : BACKDOOR FILE
  * YARA Rule Set
  * Repository Name: Arkbird SOLG
  * Repository: https://github.com/StrangerealIntel/DailyIOC
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: a873ff1298c43705e9c67286f3014f4300dd04f7
  * Number of Rules: 215
  * Skipped: 0 (age), 11 (quality), 0 (score), 0 (importance)
@@ -165097,7 +165058,7 @@ rule ARKBIRD_SOLG_MAL_Stashlog_Sep_2021_1 : FILE
  * YARA Rule Set
  * Repository Name: Telekom Security
  * Repository: https://github.com/telekom-security/malware_analysis/
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: 755efb66586f53fea34926f78a8d2054a8e8e74b
  * Number of Rules: 12
  * Skipped: 0 (age), 5 (quality), 0 (score), 0 (importance)
@@ -165486,7 +165447,7 @@ rule TELEKOM_SECURITY_Crylock_Hta : FILE
  * YARA Rule Set
  * Repository Name: Volexity
  * Repository: https://github.com/volexity/threat-intel
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: 683296427d8c7f08938ce6c587f618c938cf4c54
  * Number of Rules: 148
  * Skipped: 0 (age), 1 (quality), 0 (score), 0 (importance)
@@ -171129,7 +171090,7 @@ rule VOLEXITY_Apt_Malware_Win_Avburner : DEVIOUSBAMBOO FILE MEMORY
  * YARA Rule Set
  * Repository Name: JPCERTCC
  * Repository: https://github.com/JPCERTCC/MalConfScan/
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: 19ec0d145535a6a4cfd37c0960114f455a8c343e
  * Number of Rules: 29
  * Skipped: 0 (age), 5 (quality), 0 (score), 0 (importance)
@@ -171931,7 +171892,7 @@ rule JPCERTCC_Elf_Wellmess : FILE
  * YARA Rule Set
  * Repository Name: SecuInfra
  * Repository: https://github.com/SIFalcon/Detection
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: 2d7c66d7d16c7541bf2a9a83a7a6d334364a26fd
  * Number of Rules: 45
  * Skipped: 0 (age), 11 (quality), 0 (score), 0 (importance)
@@ -173224,7 +173185,7 @@ rule SECUINFRA_SUSP_Powershell_Download_Temp_Rundll_1 : POWERSHELL DOWNLOAD
  * YARA Rule Set
  * Repository Name: RussianPanda
  * Repository: https://github.com/RussianPanda95/Yara-Rules
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: b59e13d90d02e058560f94cf00913d42751dbc45
  * Number of Rules: 114
  * Skipped: 0 (age), 1 (quality), 0 (score), 0 (importance)
@@ -176274,7 +176235,7 @@ rule RUSSIANPANDA_Pavokwiloader : FILE
  * YARA Rule Set
  * Repository Name: CadoSecurity
  * Repository: https://github.com/mikesxrs/Open-Source-YARA-rules
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: ec0056f767db98bf6d5fd63877ad51fb54d350e9
  * Number of Rules: 8
  * Skipped: 0 (age), 0 (quality), 0 (score), 0 (importance)
@@ -176523,7 +176484,7 @@ rule CADOSECURITY_Linux_Wiper_AWFULSHRED
  * YARA Rule Set
  * Repository Name: Check Point
  * Repository: https://github.com/mikesxrs/Open-Source-YARA-rules
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: ec0056f767db98bf6d5fd63877ad51fb54d350e9
  * Number of Rules: 4
  * Skipped: 0 (age), 0 (quality), 0 (score), 0 (importance)
@@ -176737,7 +176698,7 @@ rule CHECK_POINT_Injector_ZZ_Dotrunpex_Oldnew : FILE
  * YARA Rule Set
  * Repository Name: BlackBerry
  * Repository: https://github.com/mikesxrs/Open-Source-YARA-rules
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: ec0056f767db98bf6d5fd63877ad51fb54d350e9
  * Number of Rules: 22
  * Skipped: 0 (age), 1 (quality), 0 (score), 0 (importance)
@@ -177421,7 +177382,7 @@ rule BLACKBERRY_Headertip : FILE
  * YARA Rule Set
  * Repository Name: Cluster25
  * Repository: https://github.com/mikesxrs/Open-Source-YARA-rules
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: ec0056f767db98bf6d5fd63877ad51fb54d350e9
  * Number of Rules: 9
  * Skipped: 0 (age), 1 (quality), 0 (score), 0 (importance)
@@ -177719,7 +177680,7 @@ rule CLUSTER25_UNC1222_Hermeticwiper_23433_10001 : FILE
  * YARA Rule Set
  * Repository Name: Dragon Threat Labs
  * Repository: https://github.com/mikesxrs/Open-Source-YARA-rules
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: ec0056f767db98bf6d5fd63877ad51fb54d350e9
  * Number of Rules: 7
  * Skipped: 0 (age), 0 (quality), 0 (score), 0 (importance)
@@ -177910,7 +177871,7 @@ rule DRAGON_THREAT_LABS_Apt_C16_Win_Wateringhole
  * YARA Rule Set
  * Repository Name: Microsoft
  * Repository: https://github.com/mikesxrs/Open-Source-YARA-rules
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: ec0056f767db98bf6d5fd63877ad51fb54d350e9
  * Number of Rules: 21
  * Skipped: 0 (age), 0 (quality), 0 (score), 0 (importance)
@@ -178513,7 +178474,7 @@ rule MICROSOFT_Trojan_Win32_Plakpeer : PLATINUM
  * YARA Rule Set
  * Repository Name: NCSC
  * Repository: https://github.com/mikesxrs/Open-Source-YARA-rules
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: ec0056f767db98bf6d5fd63877ad51fb54d350e9
  * Number of Rules: 17
  * Skipped: 0 (age), 0 (quality), 0 (score), 0 (importance)
@@ -178983,7 +178944,7 @@ rule NCSC_Sparrowdoor_Strings
  * YARA Rule Set
  * Repository Name: Dr4k0nia
  * Repository: https://github.com/dr4k0nia/yara-rules
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: 4b10f9b79a4cfb3ec9cb5675f32cc7ee6885fbd8
  * Number of Rules: 5
  * Skipped: 0 (age), 0 (quality), 0 (score), 0 (importance)
@@ -179161,7 +179122,7 @@ rule DR4K0NIA_Msil_Susp_Obf_Xorstringsnet : FILE
  * YARA Rule Set
  * Repository Name: EmbeeResearch
  * Repository: https://github.com/embee-research/Yara-detection-rules/
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: ac56d6f6fd2a30c8cb6e5c0455d6519210a8b0f4
  * Number of Rules: 39
  * Skipped: 0 (age), 8 (quality), 0 (score), 0 (importance)
@@ -180242,7 +180203,7 @@ rule EMBEERESEARCH_Win_Nighthawk_Nov_2022 : FILE
  * YARA Rule Set
  * Repository Name: AvastTI
  * Repository: https://github.com/avast/ioc
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: eb6d7fc10cb0c57dab5a360f1fd28acae26efa97
  * Number of Rules: 33
  * Skipped: 0 (age), 0 (quality), 0 (score), 0 (importance)
@@ -181105,7 +181066,7 @@ rule AVASTTI_Manjusaka_Payload_Mz
  * YARA Rule Set
  * Repository Name: SBousseaden
  * Repository: https://github.com/sbousseaden/YaraHunts/
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: 71b27a2a7c57c2aa1877a11d8933167794e2b4fb
  * Number of Rules: 37
  * Skipped: 0 (age), 4 (quality), 0 (score), 0 (importance)
@@ -182211,7 +182172,7 @@ rule SBOUSSEADEN_Hunt_Susp_Vhd : FILE
  * YARA Rule Set
  * Repository Name: Elceef
  * Repository: https://github.com/elceef/yara-rulz
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: 5683b294a12cf0c875b624933586029ae43a852f
  * Number of Rules: 20
  * Skipped: 0 (age), 0 (quality), 0 (score), 0 (importance)
@@ -182798,7 +182759,7 @@ rule ELCEEF_Suspicious_SFX : FILE
  * YARA Rule Set
  * Repository Name: GodModeRules
  * Repository: https://github.com/Neo23x0/god-mode-rules/
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: 436dc682164cf17a123d6b09d1424e7e2acf0c25
  * Number of Rules: 1
  * Skipped: 0 (age), 0 (quality), 0 (score), 0 (importance)
@@ -183069,7 +183030,7 @@ rule GODMODERULES_IDDQD_God_Mode_Rule
  * YARA Rule Set
  * Repository Name: Cod3nym
  * Repository: https://github.com/cod3nym/detection-rules/
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: a9f1cbab38406194d4451de021c0aeb309ac8baa
  * Number of Rules: 12
  * Skipped: 0 (age), 1 (quality), 1 (score), 0 (importance)
@@ -183499,7 +183460,7 @@ rule COD3NYM_MAL_NET_Limecrypter_Runpe_Jan24 : FILE
  * YARA Rule Set
  * Repository Name: craiu
  * Repository: https://github.com/craiu/yararules
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: 23cf0ca22021fa3684e180a18416b9ae1b695243
  * Number of Rules: 13
  * Skipped: 0 (age), 0 (quality), 0 (score), 0 (importance)
@@ -184664,7 +184625,7 @@ rule CRAIU_Crime_Chaos_Ransomware_Gen : FILE
  * YARA Rule Set
  * Repository Name: DitekSHen
  * Repository: https://github.com/ditekshen/detection
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: e76c93dcdedff04076380ffc60ea54e45b313635
  * Number of Rules: 1442
  * Skipped: 0 (age), 111 (quality), 0 (score), 0 (importance)
@@ -224402,7 +224363,7 @@ rule DITEKSHEN_INDICATOR_SUSPICIOUS_EXE_References_Publicserviceinterface : FILE
  * YARA Rule Set
  * Repository Name: WithSecureLabs
  * Repository: https://github.com/WithSecureLabs/iocs
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: 1a8384468dd292c6d2c5114c32e42dc0da1f5ae1
  * Number of Rules: 27
  * Skipped: 0 (age), 0 (quality), 0 (score), 0 (importance)
@@ -225192,7 +225153,7 @@ rule WITHSECURELABS_Fake_Vpn_Client_Hta
  * YARA Rule Set
  * Repository Name: HarfangLab
  * Repository: https://github.com/HarfangLab/iocs
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: 3e2b674bf2f591ac46301420671ba553de094dea
  * Number of Rules: 39
  * Skipped: 0 (age), 1 (quality), 0 (score), 0 (importance)
@@ -226613,7 +226574,7 @@ rule HARFANGLAB_Custom_Ateraagent_Operator : FILE
  * YARA Rule Set
  * Repository Name: LOLDrivers
  * Repository: https://github.com/magicsword-io/LOLDrivers/
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: 39c70ca64ae9b66650e2c50e011eec6f7354e9cf
  * Number of Rules: 21
  * Skipped: 0 (age), 0 (quality), 0 (score), 0 (importance)
@@ -227311,7 +227272,7 @@ rule LOLDRIVERS_Loldrivers_D3111E83_52Eb_4A8C_817D_761Ea72D37E2_SHA1_0Bec69C1B22
  * YARA Rule Set
  * Repository Name: SEKOIA
  * Repository: https://github.com/SEKOIA-IO/Community
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: dc3e5baea48e6ddc3f9160182372fecfe518f036
  * Number of Rules: 746
  * Skipped: 0 (age), 3 (quality), 0 (score), 0 (importance)
@@ -250319,7 +250280,7 @@ rule SEKOIA_Tool_Soaphound_Strings : FILE
  * YARA Rule Set
  * Repository Name: Synacktiv
  * Repository: https://github.com/synacktiv/synacktiv-rules
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: d234cc4da0783db7dca56ae8dd5252afdc248df8
  * Number of Rules: 8
  * Skipped: 0 (age), 0 (quality), 0 (score), 0 (importance)
@@ -250676,7 +250637,7 @@ rule SYNACKTIV_SYNACKTIV_HKTL_Tunnel_X64_GO_Iox_May25 : COMMODITY FILE
  * YARA Rule Set
  * Repository Name: ArtifactDrop
  * Repository: https://github.com/matthieugras/artifact-drop/
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: d2bcbe820bc134a4ed672ef6013498f856561af4
  * Number of Rules: 1
  * Skipped: 0 (age), 0 (quality), 0 (score), 0 (importance)
@@ -250735,7 +250696,7 @@ rule ARTIFACTDROP_Go_Reflectiveloader_Decryption_Loop : FILE
  * YARA Rule Set
  * Repository Name: Signature Base
  * Repository: https://github.com/Neo23x0/signature-base
- * Retrieval Date: 2026-11-01
+ * Retrieval Date: 2026-11-03
  * Git Commit: 36ab70428fc5b52701b7ee6107c853ff019ed759
  * Number of Rules: 4981
  * Skipped: 0 (age), 6 (quality), 4 (score), 0 (importance)
