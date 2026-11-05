@@ -4,7 +4,7 @@
 package release
 
 const (
-	ID string = "v1.28.0"
+	ID string = "v1.28.1"
 )
 
 // Version returns the release version to report. buildVersion is the value
