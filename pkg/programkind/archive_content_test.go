@@ -9,6 +9,7 @@ import (
 	"compress/gzip"
 	"testing"
 
+	"github.com/cavaliergopher/cpio"
 	"github.com/klauspost/compress/zip"
 	"github.com/klauspost/compress/zstd"
 	"github.com/ulikunitz/xz"
@@ -55,6 +56,11 @@ func TestDetectArchiveContent(t *testing.T) {
 	gw := gzip.NewWriter(&gzBuf)
 	_, _ = gw.Write([]byte("a"))
 	_ = gw.Close()
+	var cpioBuf bytes.Buffer
+	cw := cpio.NewWriter(&cpioBuf)
+	_ = cw.WriteHeader(&cpio.Header{Name: "init", Mode: cpio.TypeReg | 0o755, Size: 1})
+	_, _ = cw.Write([]byte("a"))
+	_ = cw.Close()
 	elf := append([]byte{0x7f, 'E', 'L', 'F', 2, 1, 1}, make([]byte, 57)...)
 
 	tests := []struct {
@@ -70,6 +76,8 @@ func TestDetectArchiveContent(t *testing.T) {
 		{name: "tar without an extension", path: "layer", content: tarBuf.Bytes(), wantMIME: "application/x-tar", archive: true},
 		{name: "xz under a data name", path: "blob.bin", content: xzBuf.Bytes(), wantMIME: "application/x-xz", archive: true},
 		{name: "zstd under a data name", path: "blob.dat", content: zst, wantMIME: "application/zstd", archive: true},
+		{name: "newc cpio under an initramfs name", path: "initramfs.img", content: cpioBuf.Bytes(), wantMIME: "application/x-cpio", archive: true},
+		{name: "newc cpio with checksums without an extension", path: "initrd", content: bytes.ReplaceAll(cpioBuf.Bytes(), []byte("070701"), []byte("070702")), wantMIME: "application/x-cpio", archive: true},
 		{name: "gzip keeps its kind", path: "blob.dat", content: gzBuf.Bytes(), wantMIME: "application/gzip", archive: true},
 		{name: "script with a zip appended keeps its kind", path: "install", content: zipBytes(t, "#!/bin/sh\nexit 0\n"), wantMIME: "text/x-shellscript", wantArchive: "zip", archive: true},
 		{name: "binary with a zip appended keeps its kind alone", path: "prog", content: append(elf, zipBytes(t, "")...), wantMIME: "application/x-elf"},

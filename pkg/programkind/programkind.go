@@ -37,6 +37,7 @@ var ArchiveMap = map[string]struct{}{
 	".apk":     {},
 	".bz2":     {},
 	".bzip2":   {},
+	".cpio":    {},
 	".deb":     {},
 	".ear":     {},
 	".gem":     {},
@@ -159,6 +160,7 @@ const (
 	mimeZstd  = "application/zstd"
 	mimeRPM   = "application/x-rpm"
 	mimeDeb   = "application/vnd.debian.binary-package"
+	mimeCPIO  = "application/x-cpio"
 )
 
 // contentArchiveMIME holds the MIME types of every kind of content the
@@ -174,6 +176,7 @@ var contentArchiveMIME = map[string]struct{}{
 	mimeZstd:  {},
 	mimeRPM:   {},
 	mimeDeb:   {},
+	mimeCPIO:  {},
 }
 
 var (
@@ -851,8 +854,8 @@ func Path(path string) *FileType {
 }
 
 // archiveContent returns the kind of fc when it begins as an archive the
-// archive extractor handles: a zip, tar, xz, bzip2, or zstd stream, an RPM, or
-// a Debian package.
+// archive extractor handles: a zip, tar, xz, bzip2, or zstd stream, an RPM, a
+// Debian package, or a newc cpio archive.
 func archiveContent(fc []byte) *FileType {
 	switch {
 	case bytes.HasPrefix(fc, []byte("PK\x03\x04")):
@@ -867,10 +870,30 @@ func archiveContent(fc []byte) *FileType {
 		return &FileType{Ext: "rpm", MIME: mimeRPM}
 	case bytes.HasPrefix(fc, []byte("!<arch>\ndebian-binary")):
 		return &FileType{Ext: "deb", MIME: mimeDeb}
+	case isNewcHeader(fc):
+		return &FileType{Ext: "cpio", MIME: mimeCPIO}
 	case isTarHeader(fc):
 		return &FileType{Ext: "tar", MIME: mimeTar}
 	}
 	return nil
+}
+
+// isNewcHeader reports whether fc begins with a cpio header in the SVR4 newc
+// format, with or without checksums, the formats the archive extractor reads:
+// the magic 070701 or 070702, then thirteen fields of eight hexadecimal
+// digits. The old portable (070707) and binary formats are not extracted, so
+// they are not reported as archives.
+func isNewcHeader(fc []byte) bool {
+	const headerSize = 110
+	if len(fc) < headerSize || !bytes.HasPrefix(fc, []byte("07070")) || (fc[5] != '1' && fc[5] != '2') {
+		return false
+	}
+	for _, c := range fc[6:headerSize] {
+		if (c < '0' || c > '9') && (c < 'a' || c > 'f') && (c < 'A' || c > 'F') {
+			return false
+		}
+	}
+	return true
 }
 
 // isBzip2 reports whether fc begins a bzip2 stream: its header, then the magic

@@ -173,10 +173,10 @@ func (x *tarExtraction) entry(tr *tar.Reader, header *tar.Header, prefix string)
 	return nil
 }
 
-// finish writes the metadata sidecar into dir, a directory as entries name
-// it, and reports the content that could not be extracted.
-func (x *tarExtraction) finish(dir string) error {
-	errs := []error{x.sc.writeIn(x.paths, dir, x.budget), x.sc.err()}
+// finish writes the metadata sidecar into the top directory of the
+// extraction and reports the content that could not be extracted.
+func (x *tarExtraction) finish() error {
+	errs := []error{x.sc.writeIn(x.paths, ".", x.budget), x.sc.err()}
 	if len(x.lost) > 0 {
 		errs = append(errs, fmt.Errorf("%w: %w", ErrUnaccountedBytes, errors.Join(x.lost...)))
 	}

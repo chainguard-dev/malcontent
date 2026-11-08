@@ -212,6 +212,8 @@ func FuzzExtractArchive(f *testing.F) {
 	f.Add([]byte{0x1f, 0x8b, 0x08, 0x00}, ".tar.gz") // gzip magic bytes only
 	f.Add([]byte{0x50, 0x4b, 0x03, 0x04}, ".zip")    // zip magic bytes
 	f.Add([]byte{0x1f, 0x8b, 0x08, 0x00}, ".gz")     // gzip header
+	// An empty newc cpio archive: the trailer's header and name, padded.
+	f.Add([]byte("070701"+strings.Repeat("0", 88)+"0000000B00000000TRAILER!!!\x00\x00\x00\x00"), ".cpio")
 
 	f.Fuzz(func(t *testing.T, data []byte, ext string) {
 		if len(data) > maxFuzzSize {
