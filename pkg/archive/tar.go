@@ -89,7 +89,7 @@ func ExtractTar(ctx context.Context, d string, f string) (err error) {
 	}
 	defer done()
 
-	return errors.Join(x.extract(stream, ".", filename), x.finish("."))
+	return errors.Join(x.extract(stream, ".", filename), x.finish())
 }
 
 // tarStream returns the tar stream in the archive r, of size bytes, whose

@@ -95,7 +95,7 @@ func ExtractDeb(ctx context.Context, d, f string) (retErr error) {
 		lost = append(lost, fmt.Errorf("ar member %q: %w", member.Name, err))
 	}
 
-	err = x.finish(".")
+	err = x.finish()
 	if len(lost) > 0 {
 		err = errors.Join(err, fmt.Errorf("%w: %w", ErrUnaccountedBytes, errors.Join(lost...)))
 	}

@@ -93,8 +93,8 @@ func ExtractRPM(ctx context.Context, d, f string) (retErr error) {
 	}
 	defer done()
 
-	err = extractCPIO(x, cpio.NewReader(payload))
-	return errors.Join(err, x.finish("."))
+	err = extractCPIOEntries(x, cpio.NewReader(payload))
+	return errors.Join(err, x.finish())
 }
 
 // rpmPayload returns the decompressed payload that starts at offset in
@@ -139,9 +139,10 @@ func rpmPayload(ctx context.Context, compression string, rpmFile *os.File, offse
 	}
 }
 
-// extractCPIO writes the members of the cpio archive cr beneath x's root. A
-// member that cannot be written is logged and skipped, as tar entries are.
-func extractCPIO(x *tarExtraction, cr *cpio.Reader) error {
+// extractCPIOEntries writes the members of the cpio archive cr beneath x's
+// root, up to its trailer or the end of the input. A member that cannot be
+// written is logged and skipped, as tar entries are.
+func extractCPIOEntries(x *tarExtraction, cr *cpio.Reader) error {
 	links := map[rpmLink]string{}
 	for {
 		if err := x.ctx.Err(); err != nil {
@@ -157,7 +158,7 @@ func extractCPIO(x *tarExtraction, cr *cpio.Reader) error {
 			return fmt.Errorf("failed to read cpio header: %w", err)
 		}
 		if err := x.budget.Entry(); err != nil {
-			return fmt.Errorf("rpm extraction aborted on %q: %w", header.Name, err)
+			return fmt.Errorf("cpio extraction aborted on %q: %w", header.Name, err)
 		}
 		content, err := extractCPIOMember(x, cr, header, links)
 		if err == nil {

@@ -33,6 +33,7 @@ const (
 	kindUPX
 	kindRPM
 	kindDeb
+	kindCPIO
 )
 
 var (
@@ -65,6 +66,8 @@ func sniffKind(r io.ReaderAt, size int64) archiveKind {
 		return kindRPM
 	case bytes.HasPrefix(head, debMagic):
 		return kindDeb
+	case isNewcHeader(head):
+		return kindCPIO
 	case len(head) == tarBlockSize && (bytes.HasPrefix(head[257:], []byte("ustar")) || validTarHeader(head)):
 		return kindTar
 	}
@@ -140,6 +143,8 @@ func extractorForKind(kind archiveKind, ext string) func(context.Context, string
 		return ExtractRPM
 	case kindDeb:
 		return ExtractDeb
+	case kindCPIO:
+		return ExtractCPIO
 	case kindUnknown:
 	}
 	return ExtractionMethod(ext)

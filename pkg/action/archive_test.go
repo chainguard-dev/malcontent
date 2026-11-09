@@ -85,6 +85,7 @@ func TestExtractionMethod(t *testing.T) {
 		want func(context.Context, string, string) error
 	}{
 		{"apk", ".apk", archive.ExtractTar},
+		{"cpio", ".cpio", archive.ExtractCPIO},
 		{"gem", ".gem", archive.ExtractTar},
 		{"gzip", ".gz", archive.ExtractGzip},
 		{"jar", ".jar", archive.ExtractZip},

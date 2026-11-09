@@ -768,6 +768,8 @@ func ExtractionMethod(ext string) func(context.Context, string, string) error {
 		return ExtractRPM
 	case ".deb":
 		return ExtractDeb
+	case ".cpio":
+		return ExtractCPIO
 	default:
 		return nil
 	}
