@@ -99,6 +99,78 @@ rule named_rule {
 	}
 }
 
+func TestRuleInfoPlatformTags(t *testing.T) {
+	t.Parallel()
+	byName := reportRulesByName(t, map[string]string{
+		"yara/vendor/names.yar": `
+rule ELASTIC_Linux_Trojan_Gafgyt { condition: true }
+rule SIGNATURE_BASE_APT_MAL_LNX_Kobalos: MALWARE { condition: true }
+rule REVERSINGLABS_Win32_Ransomware_Badblock { condition: true }
+rule MALPEDIA_Win_Banjori_Auto { condition: true }
+rule SIGNATURE_BASE_MAL_RANSOM_LNX_Macos_Lockbit { condition: true }
+rule BINARYALERT_Malware_Macos_Bella: macos { condition: true }
+rule SIGNATURE_BASE_OSX_Backdoor_Evilosx { condition: true }
+rule SIGNATURE_BASE_CN_Honker_MAC_IPMAC { condition: true }
+rule SIGNATURE_BASE_MAL_ELF_Mirai_Unix { condition: true }
+rule VENDOR_Winnti_Windowsupdate_Linuxloader { condition: true }
+rule VENDOR_Webshell_Jsp: WEBSHELL { condition: true }
+`,
+		"yara/vendor/os.yar": `
+rule os_windows { meta: os = "windows" condition: true }
+rule os_short_list { meta: os = "win, Linux" condition: true }
+rule os_darwin { meta: os = "darwin" condition: true }
+rule VENDOR_Macos_Lightspy_Json { meta: os = "all" condition: true }
+rule VENDOR_Linux_Multi_Shell { meta: os = "multi" condition: true }
+`,
+		"exec/shell/first_party.yara": `
+rule linux_windows_macos_named: medium { condition: true }
+rule tagged_first_party: medium windows { condition: true }
+`,
+	})
+
+	tests := []struct {
+		name string
+		rule string
+		want []string
+	}{
+		{name: "a platform word in the name tags the rule", rule: "ELASTIC_Linux_Trojan_Gafgyt", want: []string{"linux"}},
+		{name: "vendor tags are kept beside the inferred platform", rule: "SIGNATURE_BASE_APT_MAL_LNX_Kobalos", want: []string{"MALWARE", "linux"}},
+		{name: "Win32 names Windows", rule: "REVERSINGLABS_Win32_Ransomware_Badblock", want: []string{"windows"}},
+		{name: "Win names Windows", rule: "MALPEDIA_Win_Banjori_Auto", want: []string{"windows"}},
+		{name: "every platform the name gives is tagged", rule: "SIGNATURE_BASE_MAL_RANSOM_LNX_Macos_Lockbit", want: []string{"linux", "macos"}},
+		{name: "a platform tag the rule already has is not repeated", rule: "BINARYALERT_Malware_Macos_Bella", want: []string{"macos"}},
+		{name: "OSX names macOS", rule: "SIGNATURE_BASE_OSX_Backdoor_Evilosx", want: []string{"macos"}},
+		{name: "MAC is ambiguous and tags nothing", rule: "SIGNATURE_BASE_CN_Honker_MAC_IPMAC"},
+		{name: "ELF and Unix span platforms and tag nothing", rule: "SIGNATURE_BASE_MAL_ELF_Mirai_Unix"},
+		{name: "platform names inside longer words tag nothing", rule: "VENDOR_Winnti_Windowsupdate_Linuxloader"},
+		{name: "a rule naming no platform keeps only its vendor tags", rule: "VENDOR_Webshell_Jsp", want: []string{"WEBSHELL"}},
+		{name: "os metadata tags the rule", rule: "os_windows", want: []string{"windows"}},
+		{name: "os metadata lists platforms in any case", rule: "os_short_list", want: []string{"windows", "linux"}},
+		{name: "darwin os metadata names macOS", rule: "os_darwin", want: []string{"macos"}},
+		{name: "os metadata for all platforms outranks the name", rule: "VENDOR_Macos_Lightspy_Json"},
+		{name: "multi-platform os metadata outranks the name", rule: "VENDOR_Linux_Multi_Shell"},
+		{name: "first-party rules are not tagged by name", rule: "linux_windows_macos_named", want: []string{"medium"}},
+		{name: "first-party rules keep their own platform tags", rule: "tagged_first_party", want: []string{"medium", "windows"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			r := byName[tt.rule]
+			if r == nil {
+				t.Fatalf("rule %q not compiled", tt.rule)
+			}
+			compiled := slices.Clone(r.Tags())
+			ri := newRuleInfo(r, "", 0)
+			if !slices.Equal(ri.tags, tt.want) {
+				t.Errorf("tags: got = %q, want = %q", ri.tags, tt.want)
+			}
+			if !slices.Equal(r.Tags(), compiled) {
+				t.Errorf("compiled rule tags: got = %q, want = %q", r.Tags(), compiled)
+			}
+		})
+	}
+}
+
 func TestRuleInfoDeclarationOrder(t *testing.T) {
 	t.Parallel()
 	yrs := compileTestRules(t, map[string]string{

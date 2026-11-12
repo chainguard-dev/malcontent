@@ -71,10 +71,10 @@ var logWarn = slog.Warn
 var nonRiskTags = map[string]struct{}{
 	"override": {},
 	"bsd":      {},
-	"linux":    {},
-	"macos":    {},
+	tagLinux:   {},
+	tagMacOS:   {},
 	"posix":    {},
-	"windows":  {},
+	tagWindows: {},
 	"java":     {},
 	"js":       {},
 	"php":      {},
@@ -112,6 +112,11 @@ func newRuleInfo(m *yarax.Rule, ref string, order int) *ruleInfo {
 		thirdParty: thirdParty(ns),
 	}
 	ri.override = !ri.thirdParty && slices.Contains(tags, "override")
+	if ri.thirdParty {
+		// Tag third-party rules with the platforms they target, so that
+		// ignoring a platform's tag drops them as it does first-party rules.
+		ri.tags = withPlatformTags(tags, platformTags(id, meta))
+	}
 	if strings.HasPrefix(key, "meta/") {
 		ri.isMeta = true
 		ri.metaKey = strings.ReplaceAll(filepath.Dir(key), "meta/", "")
