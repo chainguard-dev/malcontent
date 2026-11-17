@@ -17,7 +17,7 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.16
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-containerregistry v0.22.1
-	github.com/klauspost/compress v1.20.3
+	github.com/klauspost/compress v1.20.4
 	github.com/klauspost/pgzip v1.3.0
 	github.com/puzpuzpuz/xsync/v4 v4.5.0
 	github.com/shirou/gopsutil/v4 v4.26.10
@@ -27,7 +27,7 @@ require (
 	go.yaml.in/yaml/v3 v3.0.6
 	golang.org/x/sync v0.25.0
 	golang.org/x/sys v0.50.0
-	golang.org/x/term v0.47.0
+	golang.org/x/term v0.48.0
 )
 
 require (
