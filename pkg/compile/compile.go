@@ -121,7 +121,6 @@ var rulesWithWarnings = map[string]bool{
 
 	// unsatisfiable_expr
 	"RUSSIANPANDA_Bandit_Stealer":                  true,
-	"SEKOIA_Apt_Apt31_Rekoobe":                     true,
 	"SIGNATURE_BASE_HKTL_Imphashes_Aug22_1":        true,
 	"TRELLIX_ARC_Apt_Nix_Elf_Derusbi":              true,
 	"TRELLIX_ARC_Apt_Nix_Elf_Derusbi_Kernelmodule": true,
