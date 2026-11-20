@@ -62,7 +62,7 @@ GLOBAL OPTIONS:
    --format string             Output format (interactive, json, markdown, simple, strings, terminal, yaml) (default: "auto")
    --ignore-rules string       YARA rule names to ignore (comma-separated; supports filepath.Match globs, e.g. "py_lib_alias_val,py_lib_*")
    --ignore-self               Ignore the malcontent binary
-   --ignore-tags string        Rule tags to ignore (default: "false_positive,ignore")
+   --ignore-tags string        Rule tags to ignore (comma-separated), such as the platforms linux, macos, and windows (default: "false_positive,ignore")
    --include-data-files        Include files that are detected as non-program (binary or source) files
    --jobs int, -j int          Concurrently scan files within target scan paths (default: 12)
    --max-depth int             Maximum depth for archive extraction (0 or -1 for unlimited) (default: 32)
@@ -85,6 +85,9 @@ GLOBAL OPTIONS:
    --help, -h                  show help
    --version, -v               print the version
 ```
+
+> Many rules that detect behavior specific to one operating system are tagged `linux`, `macos`, or `windows`, so `--ignore-tags` can drop the platforms a scan does not care about: a Linux CI/CD pipeline can pass `--ignore-tags=macos,windows`. The `false_positive` and `ignore` tags are always ignored, unless `--all` is set.  
+> Third-party rules are tagged by the operating systems their `os` metadata names, or, without it, by the platform words in their names, such as `Linux`, `LNX`, `macOS`, `OSX`, `Windows`, `Win`, or `Win32`. A rule whose `os` metadata says it covers every platform (`all` or `multi`) gets no platform tag.
 
 > Malcontent defaults to anonymous OCI pulls. Authentication is opt-in via `--oci-auth`, which reads Basic credentials from the `MALCONTENT_REGISTRY_USER` and `MALCONTENT_REGISTRY_PASS` environment variables. The ambient Docker keychain (`~/.docker/config.json`) is intentionally never used.  
 > Credentials are scoped to a single registry: they are sent only when the image's registry host matches `MALCONTENT_REGISTRY_HOST`, and malcontent falls back to anonymous pulls (with a warning) for any other registry, so private credentials are never presented to an unexpected (potentially malicious) registry.  

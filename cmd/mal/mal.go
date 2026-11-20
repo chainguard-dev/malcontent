@@ -331,7 +331,7 @@ func globalFlags() []cli.Flag {
 		&cli.StringFlag{
 			Name:        "ignore-tags",
 			Value:       "false_positive,ignore",
-			Usage:       "Rule tags to ignore",
+			Usage:       "Rule tags to ignore (comma-separated), such as the platforms linux, macos, and windows",
 			Destination: &ignoreTagsFlag,
 			Local:       false,
 		},
