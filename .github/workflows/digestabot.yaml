@@ -36,7 +36,7 @@ jobs:
             release-assets.githubusercontent.com:443
             tuf-repo-cdn.sigstore.dev:443
 
-      - uses: chainguard-dev/actions/setup-gitsign@a25ce483d875a46f4c837e85e32e0fda602693f5 # v1.8.1
+      - uses: chainguard-dev/actions/setup-gitsign@d496b2ab65497cac13d77ccd5038b8aae7e8c43b # v1.8.2
 
       - uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
         id: octo-sts
@@ -49,7 +49,7 @@ jobs:
         with:
           token: ${{ steps.octo-sts.outputs.token }}
 
-      - uses: chainguard-dev/digestabot@33d0b78e580aa0c83fe188eb3dfad6611b662479 # v1.3.2
+      - uses: chainguard-dev/digestabot@3e895adcf935bab7a21ebef6173d7cd4375822ab # v1.3.3
         with:
           token: ${{ steps.octo-sts.outputs.token }}
           include-files: ".github/workflows/*.yaml"
