@@ -17,9 +17,9 @@ IFS=$'\n\t'
 # a dependency, run this script, copy the computed hash printed in the abort
 # message, and append a new pinned entry below.
 #
-# yara-forge-rules-full.zip @ release tag 20261115
+# yara-forge-rules-full.zip @ release tag 20261122
 # shellcheck disable=SC2034  # referenced indirectly via ${!pin_var}
-YARAFORGE_FULL_ZIP_SHA256_20261115="fdd03916275100f304b9a3ff3516a72e905d9b7debb193a3ddb07a18b4d72d26"
+YARAFORGE_FULL_ZIP_SHA256_20261122="829b07a15d58cbaabe216b83ba3291810dd863b7a82c2a8972376af471bb88f9"
 
 # sha256_of computes the sha256 of a file using the platform-appropriate tool.
 # Prints only the hex digest to stdout.
