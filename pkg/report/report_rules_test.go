@@ -731,6 +731,18 @@ func TestGenerateDropsRules(t *testing.T) {
 			wantFiltered: 2,
 			wantRisk:     MEDIUM,
 		},
+		{
+			name: "third-party rules for an ignored platform are counted and dropped",
+			sources: map[string]string{
+				"yara/vendor/a.yar": reportRuleSrc("VENDOR_Win32_Trojan_Alpha", "", "", "aaa"),
+				"yara/vendor/b.yar": reportRuleSrc("VENDOR_Win32_Backdoor_Bravo", "", `os = "multi"`, "bbb"),
+				"yara/vendor/c.yar": reportRuleSrc("VENDOR_Backdoor_Charlie", "", `os = "windows"`, "ccc"),
+			},
+			c:            malcontent.Config{IgnoreTags: []string{"windows"}},
+			wantNames:    []string{"VENDOR_Win32_Backdoor_Bravo"},
+			wantFiltered: 2,
+			wantRisk:     HIGH,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

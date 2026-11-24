@@ -57,6 +57,9 @@ const (
 // string across files.
 const (
 	tagHarmless  = "harmless" // YARA tag treated as HARMLESS risk in Levels
+	tagLinux     = "linux"    // platform tag of rules for Linux
+	tagMacOS     = "macos"    // platform tag of rules for macOS
+	tagWindows   = "windows"  // platform tag of rules for Windows
 	extClass     = "class"    // Java bytecode extension, aliased to jar/java
 	extPyc       = "pyc"      // Python bytecode extension, aliased to py
 	testJunkWord = "test"     // filtered from the head of long third-party rule names
