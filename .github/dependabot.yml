@@ -11,6 +11,9 @@ updates:
     cooldown:
       default-days: 3
     open-pull-requests-limit: 10
+    ignore:
+      # Bumped with the C library by update-yara-x.yaml, never on its own.
+      - dependency-name: "github.com/VirusTotal/yara-x/go"
     groups:
       gomod:
         update-types:
